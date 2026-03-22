@@ -1,94 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 html {
   scrollbar-gutter: stable;
 }
 
-.MonthBar * {
-  overflow-y: auto;
-  overflow-x: hidden;
+* {
+  scrollbar-width: thin;
 }
-
-:root {
-  /* Cores Base (Tema Claro Minimalista) */
-  --bg-main: #f9fafb;
-  --bg-card: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  
-  /* Cor de Destaque (Dinâmica) */
-  --accent: #3b82f6; /* Azul padrão, mas mudará via JS */
-  --accent-soft: rgba(59, 130, 246, 0.1);
-}
-
-/* Caso queira manter o Dark Mode como opção, ele fica aqui */
-.dark {
-  --bg-main: #0f172a;
-  --bg-card: #1e293b;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border: #334155;
-}
-
-body {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-  font-family: 'Sora', sans-serif;
-  transition: all 0.3s ease;
-}
-
-@layer components {
-  .card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    @apply rounded-xl;
-  }
-
-  .btn-primary {
-    background-color: var(--accent);
-    @apply text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-all flex items-center gap-2 shadow-sm;
-  }
-
-  .btn-ghost {
-    color: var(--text-muted);
-    @apply px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-all;
-  }
-
-  .input {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text-main);
-    @apply rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 transition-all w-full;
-    border-color: var(--border);
-  }
-  
-  .input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-soft);
-  }
-
-  .label {
-    color: var(--text-muted);
-    @apply text-[11px] font-bold uppercase tracking-wider mb-1 block;
-  }
-}
-
-/* Ajustes de Cores Genéricas para respeitar o Tema */
-
-header .text-slate-100, header .text-slate-200, header .text-slate-300 { color: #f8fafc !important; }
-.text-slate-100, .text-slate-200, .text-slate-300 { color: var(--text-main) !important; }
-/* .text-slate-400, .text-slate-500 { color: var(--text-muted) !important; } */
-.bg-surface-900 { background-color: var(--bg-main) !important; }
-.bg-surface-800 { background-color: var(--bg-card) !important; }
-.border-surface-600 { border-color: var(--border) !important; }
-
-/* A cor de destaque substitui o azul antigo */
-.bg-accent-blue, .text-accent-blue { 
-  background-color: var(--accent) !important; 
-  color: #fff !important;
-}
-.text-accent-blue { background: none !important; color: var(--accent) !important; }

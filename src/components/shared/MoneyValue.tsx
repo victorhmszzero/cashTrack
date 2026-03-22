@@ -1,26 +1,26 @@
-// src/components/shared/MoneyValue.tsx
-
-import { brl } from '../../utils/calculations'
+import { MonoText } from '@/styles/ui'
+import { brl } from '@/utils/calculations'
+import { CSSPropertiesWithVars } from 'styled-components/dist/types'
 
 interface Props {
   value: number
-  /** Se true, positivo = verde e negativo = vermelho */
   colored?: boolean
   className?: string
   size?: 'sm' | 'md' | 'lg'
+  style?: CSSPropertiesWithVars | React.CSSProperties | undefined
 }
 
-export function MoneyValue({ value, colored = false, className = '', size = 'sm' }: Props) {
-  const sizeClass = size === 'lg' ? 'text-2xl' : size === 'md' ? 'text-base' : 'text-sm'
-
-  let colorClass = 'text-slate-300'
-  if (colored) {
-    colorClass = value >= 0 ? 'text-emerald-400' : 'text-red-400'
-  }
-
+export function MoneyValue({ value, colored = false, className = '', size = 'sm', style }: Props) {
   return (
-    <span className={`font-mono font-medium ${sizeClass} ${colorClass} ${className}`}>
+    <MonoText
+    style={style}
+      className={className}
+      $size={size}
+      $positive={colored && value >= 0}
+      $negative={colored && value < 0}
+      $muted={!colored}
+    >
       {brl(value)}
-    </span>
+    </MonoText>
   )
 }

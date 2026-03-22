@@ -1,17 +1,54 @@
-// src/components/pages/SettingsPage.tsx
-
 import { useState, useRef } from 'react'
 import { Save, RotateCcw, Download, Upload, CheckCircle, AlertCircle } from 'lucide-react'
-import { useStore } from '../../store/useStore'
+import { useStore } from '@/store/useStore'
+import {
+  Card, CardBody, Flex, Grid, PageTitle, SectionTitle, Muted,
+  PrimaryButton, GhostButton, DangerButton,
+  FormRow, Label, Input, Alert, ColorSwatch, Divider,
+  ThemeToggle, ThemeToggleOption,
+} from '@/styles/ui'
+import styled from 'styled-components'
 
 const PRESET_COLORS = [
-  { name: 'Azul', color: '#3b82f6' },
-  { name: 'Rosa', color: '#ec4899' },
-  { name: 'Roxo', color: '#8b5cf6' },
-  { name: 'Amarelo', color: '#f59e0b' },
-  { name: 'Verde', color: '#10b981' },
-  { name: 'Preto', color: '#0f172a' },
+  { name: 'Azul',     color: '#3b82f6' },
+  { name: 'Rosa',     color: '#ec4899' },
+  { name: 'Roxo',     color: '#8b5cf6' },
+  { name: 'Verde',    color: '#10b981' },
+  { name: 'Amarelo',  color: '#f59e0b' },
+  { name: 'Laranja',  color: '#f97316' },
+  { name: 'Ciano',    color: '#06b6d4' },
+  { name: 'Índigo',   color: '#6366f1' },
+  { name: 'Preto',    color: '#0f172a' },
 ]
+
+const DangerZone = styled(Card)`
+  border-color: ${p => p.theme.danger}44;
+`
+
+const CustomColorLabel = styled.label`
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 2px dashed ${p => p.theme.border***REMOVED***
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: ${p => p.theme.text.muted***REMOVED***
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+  &:hover { border-color: ${p => p.theme.accent***REMOVED*** }
+`
+
+const CodeChip = styled.code`
+  background: ${p => p.theme.bg.subtle***REMOVED***
+  border: 1px solid ${p => p.theme.border***REMOVED***
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.75rem;
+  font-family: ${p => p.theme.font.mono***REMOVED***
+`
 
 export function SettingsPage() {
   const { settings, updateSettings, resetToInitial, importData } = useStore()
@@ -20,6 +57,7 @@ export function SettingsPage() {
   const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'error'>('idle')
   const [importMsg, setImportMsg] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+  const currentAccent = settings.accentColor || '#3b82f6'
 
   const save = () => {
     updateSettings({
@@ -29,14 +67,8 @@ export function SettingsPage() {
   }
 
   const exportJSON = () => {
-    const fullState = useStore.getState()
-    const data = {
-      settings: fullState.settings,
-      cards: fullState.cards,
-      fixedBills: fullState.fixedBills,
-      pixPeople: fullState.pixPeople,
-    }
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const { settings: s, cards, fixedBills, pixPeople } = useStore.getState()
+    const blob = new Blob([JSON.stringify({ settings: s, cards, fixedBills, pixPeople }, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -49,174 +81,157 @@ export function SettingsPage() {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = (ev) => {
+    reader.onload = ev => {
       try {
-        const json = ev.target?.result as string
-        importData(json)
-        setImportStatus('ok')
-        setImportMsg('Dados importados com sucesso!')
+        importData(ev.target?.result as string)
+        setImportStatus('ok'); setImportMsg('Dados importados com sucesso!')
       } catch (err: unknown) {
-        setImportStatus('error')
-        setImportMsg(err instanceof Error ? err.message : 'Erro ao importar')
+        setImportStatus('error'); setImportMsg(err instanceof Error ? err.message : 'Erro ao importar')
       }
-      // Reset input so same file can be re-selected
       if (fileRef.current) fileRef.current.value = ''
     }
     reader.readAsText(file)
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-md">
-      <h2 className="text-base font-semibold text-slate-200">Configurações</h2>
-   <header>
-        <h2 className="text-2xl font-bold">Configurações</h2>
-        <p className="text-slate-500">Personalize o visual e gerencie seus dados.</p>
-      </header>
+    <Flex $col $gap={5} style={{ maxWidth: '36rem' }}>
+      <div>
+        <PageTitle>Configurações</PageTitle>
+        <Muted>Personalize o visual e gerencie seus dados.</Muted>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Aparência */}
-        <section className="card p-6 flex flex-col gap-6">
-          <h3 className="font-bold flex items-center gap-2">🎨 Aparência</h3>
-          
-          <div>
-            <label className="label">Cor de Destaque</label>
-            <div className="flex flex-wrap gap-3 mt-2">
-              {PRESET_COLORS.map((c) => (
-                <button
-                  key={c.color}
-                  onClick={() => updateSettings({ accentColor: c.color })}
-                  className={`w-10 h-10 rounded-full border-4 transition-transform hover:scale-110 ${
-                    settings.accentColor === c.color ? 'border-slate-300' : 'border-transparent'
-                  }`}
-                  style={{ backgroundColor: c.color }}
-                  title={c.name}
-                />
-              ))}
-            </div>
-          </div>
+      {/* Aparência */}
+      <Card>
+        <CardBody>
+          <SectionTitle style={{ marginBottom: '1.25rem' }}>🎨 Aparência</SectionTitle>
 
-          <div>
-            <label className="label">Modo</label>
-            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-              <button 
-                onClick={() => updateSettings({ theme: 'light' })}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${settings.theme === 'light' ? 'bg-white shadow-sm' : ''}`}
-              >
-                CLARO
-              </button>
-              <button 
-                onClick={() => updateSettings({ theme: 'dark' })}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${settings.theme === 'dark' ? 'bg-slate-700 text-white' : ''}`}
-              >
-                ESCURO
-              </button>
-            </div>
-          </div>
-        </section>
-        </div>
-        
+          <Flex $col $gap={5}>
+            {/* Tema */}
+            <FormRow>
+              <Label>Modo</Label>
+              <ThemeToggle $dark={settings.theme === 'dark'}>
+                <ThemeToggleOption $active={settings.theme === 'light'} onClick={() => updateSettings({ theme: 'light' })}>
+                  ☀️ Claro
+                </ThemeToggleOption>
+                <ThemeToggleOption $active={settings.theme === 'dark'} onClick={() => updateSettings({ theme: 'dark' })}>
+                  🌙 Escuro
+                </ThemeToggleOption>
+              </ThemeToggle>
+            </FormRow>
+
+            <Divider />
+
+            {/* Cor de destaque */}
+            <FormRow>
+              <Label>Cor de destaque</Label>
+              <Flex $gap={2} $wrap style={{ marginTop: '0.4rem' }}>
+                {PRESET_COLORS.map(c => (
+                  <ColorSwatch
+                    key={c.color}
+                    $color={c.color}
+                    $active={currentAccent === c.color}
+                    title={c.name}
+                    onClick={() => updateSettings({ accentColor: c.color })}
+                  />
+                ))}
+                <CustomColorLabel title="Cor personalizada">
+                  <span>＋</span>
+                  <input
+                    type="color"
+                    style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
+                    value={currentAccent}
+                    onChange={e => updateSettings({ accentColor: e.target.value })}
+                  />
+                </CustomColorLabel>
+              </Flex>
+              {/* Preview */}
+              <Flex $align="center" $gap={3} style={{ marginTop: '0.75rem' }}>
+                <PrimaryButton style={{ pointerEvents: 'none', fontSize: '0.75rem', padding: '0.35rem 0.875rem' }}>
+                  Exemplo
+                </PrimaryButton>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: currentAccent }}>
+                  Texto destacado
+                </span>
+              </Flex>
+            </FormRow>
+          </Flex>
+        </CardBody>
+      </Card>
+
       {/* Financeiro */}
-      <div className="card p-5 flex flex-col gap-4">
-        <h3 className="text-sm font-semibold text-slate-300">Financeiro</h3>
+      <Card>
+        <CardBody>
+          <SectionTitle style={{ marginBottom: '1.25rem' }}>💰 Financeiro</SectionTitle>
+          <Flex $col $gap={4}>
+            <FormRow>
+              <Label>Salário mensal (R$)</Label>
+              <Input type="number" step="100" value={salary} onChange={e => setSalary(e.target.value)} />
+            </FormRow>
 
-        <div>
-          <label className="label">Salário mensal (R$)</label>
-          <input
-            className="input"
-            type="number"
-            step="100"
-            value={salary}
-            onChange={(e) => setSalary(e.target.value)}
-          />
-        </div>
+            <FormRow>
+              <Label>% do saldo livre para investir</Label>
+              <Flex $align="center" $gap={3}>
+                <Input
+                  type="range" min={0} max={100}
+                  value={investPct}
+                  onChange={e => setInvestPct(e.target.value)}
+                  style={{ padding: '0.25rem 0' }}
+                />
+                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: currentAccent, minWidth: '2.5rem', textAlign: 'right' }}>
+                  {investPct}%
+                </span>
+              </Flex>
+              <Muted $size="xs">O restante ({100 - parseFloat(investPct || '0')}%) vai para lazer.</Muted>
+            </FormRow>
 
-        <div>
-          <label className="label">% para investir do saldo livre</label>
-          <div className="flex items-center gap-3">
-            <input
-              className="input"
-              type="range"
-              min={0}
-              max={100}
-              value={investPct}
-              onChange={(e) => setInvestPct(e.target.value)}
-            />
-            <span className="text-sm font-mono text-accent-blue w-12 text-right">
-              {investPct}%
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 mt-1">
-            O restante ({100 - parseFloat(investPct || '0')}%) vai para lazer.
-          </p>
-        </div>
+            <PrimaryButton style={{ width: 'fit-content' }} onClick={save}>
+              <Save size={15} /> Salvar configurações
+            </PrimaryButton>
+          </Flex>
+        </CardBody>
+      </Card>
 
-        <button className="btn-primary w-fit" onClick={save}>
-          <Save size={15} /> Salvar configurações
-        </button>
-      </div>
+      {/* Backup */}
+      <Card>
+        <CardBody>
+          <SectionTitle style={{ marginBottom: '0.5rem' }}>💾 Backup de Dados</SectionTitle>
+          <Muted style={{ display: 'block', marginBottom: '1rem' }}>
+            Exporte um arquivo <CodeChip>.json</CodeChip> com todos os seus dados para segurança. Importe de volta quando precisar.
+          </Muted>
 
-      {/* Backup JSON */}
-      <div className="card p-5 flex flex-col gap-4">
-        <h3 className="text-sm font-semibold text-slate-300">Backup de Dados</h3>
-        <p className="text-xs text-slate-500">
-          Exporte um arquivo <code className="bg-surface-700 px-1 rounded text-xs">.json</code> com
-          todos os seus dados para guardar como segurança, e importe de volta quando precisar.
-        </p>
+          <Flex $gap={3} $wrap>
+            <PrimaryButton onClick={exportJSON}>
+              <Download size={15} /> Exportar JSON
+            </PrimaryButton>
+            <GhostButton onClick={() => fileRef.current?.click()} style={{ border: '1px solid' }}>
+              <Upload size={15} /> Importar JSON
+            </GhostButton>
+            <input ref={fileRef} type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
+          </Flex>
 
-        <div className="flex flex-wrap gap-3">
-          <button className="btn-primary" onClick={exportJSON}>
-            <Download size={15} /> Exportar JSON
-          </button>
+          {importStatus !== 'idle' && (
+            <Alert $variant={importStatus === 'ok' ? 'success' : 'error'} style={{ marginTop: '0.75rem' }}>
+              {importStatus === 'ok' ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
+              {importMsg}
+            </Alert>
+          )}
+        </CardBody>
+      </Card>
 
-          <button
-            className="btn-ghost border border-surface-600 flex items-center gap-2"
-            onClick={() => fileRef.current?.click()}
-          >
-            <Upload size={15} /> Importar JSON
-          </button>
-
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".json,application/json"
-            onChange={handleImport}
-            className="hidden"
-          />
-        </div>
-
-        {importStatus !== 'idle' && (
-          <div
-            className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
-              importStatus === 'ok'
-                ? 'bg-emerald-950/50 text-emerald-400'
-                : 'bg-red-950/50 text-red-400'
-            }`}
-          >
-            {importStatus === 'ok' ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
-            {importMsg}
-          </div>
-        )}
-      </div>
-
-      {/* Zona de perigo */}
-      <div className="card p-5 border-red-900/50 flex flex-col gap-3">
-        <h3 className="text-sm font-semibold text-red-400">Zona de perigo</h3>
-        <p className="text-xs text-slate-500">
-          Isso vai apagar todos os dados editados e voltar ao estado inicial importado do Excel.
-          Considere exportar um backup antes.
-        </p>
-        <button
-          className="btn-danger w-fit flex items-center gap-2"
-          onClick={() => {
-            if (confirm('Tem certeza? Todos os dados voltarão ao padrão inicial.')) {
-              resetToInitial()
-            }
-          }}
-        >
-          <RotateCcw size={15} /> Resetar para dados iniciais
-        </button>
-      </div>
-    </div>
+      {/* Danger zone */}
+      <DangerZone>
+        <CardBody>
+          <SectionTitle style={{ marginBottom: '0.5rem', color: '#ef4444' }}>⚠️ Zona de Perigo</SectionTitle>
+          <Muted style={{ display: 'block', marginBottom: '1rem' }}>
+            Apaga todos os dados editados e volta ao estado inicial do Excel. Exporte um backup antes.
+          </Muted>
+          <DangerButton onClick={() => {
+            if (confirm('Tem certeza? Todos os dados voltarão ao padrão inicial.')) resetToInitial()
+          }}>
+            <RotateCcw size={15} /> Resetar para dados iniciais
+          </DangerButton>
+        </CardBody>
+      </DangerZone>
+    </Flex>
   )
 }
-
