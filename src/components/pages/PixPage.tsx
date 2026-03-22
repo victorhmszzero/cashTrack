@@ -23,9 +23,9 @@ const PersonHeader = styled.button`
   border: none;
   background: transparent;
   cursor: pointer;
-  font-family: ${p => p.theme.font.sans***REMOVED***
+  font-family: ${p => p.theme.font.sans};
   transition: background 0.12s;
-  &:hover { background: ${p => p.theme.bg.hover***REMOVED*** }
+  &:hover { background: ${p => p.theme.bg.hover}; }
 `
 
 const Avatar = styled.div<{ $color: string }>`
@@ -33,7 +33,7 @@ const Avatar = styled.div<{ $color: string }>`
   height: 2rem;
   border-radius: 50%;
   background: ${p => p.$color}22;
-  color: ${p => p.$color***REMOVED***
+  color: ${p => p.$color};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,7 +43,7 @@ const Avatar = styled.div<{ $color: string }>`
 `
 
 const ExpandedSection = styled.div`
-  border-top: 1px solid ${p => p.theme.border***REMOVED***
+  border-top: 1px solid ${p => p.theme.border};
 `
 
 const Toolbar = styled.div`
@@ -51,13 +51,13 @@ const Toolbar = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0.625rem 1rem;
-  background: ${p => p.theme.bg.hover***REMOVED***
+  background: ${p => p.theme.bg.hover};
   flex-wrap: wrap;
   gap: 0.5rem;
 `
 
 const AccentText = styled.span`
-  color: ${p => p.theme.accent***REMOVED***
+  color: ${p => p.theme.accent};
 `
 
 // ─── Constants ────────────────────────────────────────────────────────────────

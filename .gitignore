@@ -25,3 +25,4 @@ local.Readme.md
 *.sw?
 .vite/
 cashTrack-backup
+src/data/initialData.ts

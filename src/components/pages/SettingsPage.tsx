@@ -29,25 +29,25 @@ const CustomColorLabel = styled.label`
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 50%;
-  border: 2px dashed ${p => p.theme.border***REMOVED***
+  border: 2px dashed ${p => p.theme.border};
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 1.1rem;
-  color: ${p => p.theme.text.muted***REMOVED***
+  color: ${p => p.theme.text.muted};
   flex-shrink: 0;
   transition: border-color 0.15s;
-  &:hover { border-color: ${p => p.theme.accent***REMOVED*** }
+  &:hover { border-color: ${p => p.theme.accent}; }
 `
 
 const CodeChip = styled.code`
-  background: ${p => p.theme.bg.subtle***REMOVED***
-  border: 1px solid ${p => p.theme.border***REMOVED***
+  background: ${p => p.theme.bg.subtle};
+  border: 1px solid ${p => p.theme.border};
   border-radius: 4px;
   padding: 0.1rem 0.4rem;
   font-size: 0.75rem;
-  font-family: ${p => p.theme.font.mono***REMOVED***
+  font-family: ${p => p.theme.font.mono};
 `
 
 export function SettingsPage() {

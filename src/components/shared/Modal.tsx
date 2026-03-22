@@ -14,7 +14,7 @@ const widthMap = { sm: '24rem', md: '32rem', lg: '44rem' }
 
 const ModalCard = styled(Card)<{ $size: 'sm' | 'md' | 'lg' }>`
   width: 100%;
-  max-width: ${p => widthMap[p.$size]***REMOVED***
+  max-width: ${p => widthMap[p.$size]};
   max-height: 90vh;
   overflow-y: auto;
 `
@@ -24,13 +24,13 @@ const ModalHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem;
-  border-bottom: 1px solid ${p => p.theme.border***REMOVED***
+  border-bottom: 1px solid ${p => p.theme.border};
 `
 
 const ModalTitle = styled.h2`
   font-size: 0.9375rem;
   font-weight: 600;
-  color: ${p => p.theme.text.primary***REMOVED***
+  color: ${p => p.theme.text.primary};
   margin: 0;
 `
 
@@ -49,8 +49,7 @@ export function Modal({ title, onClose, children, size = 'md' }: Props) {
   }, [onClose])
 
   return (
-    // <Overlay onClick={e => e.target === e.currentTarget && onClose()}>
-    <Overlay>
+    <Overlay onClick={e => e.target === e.currentTarget && onClose()}>
       <ModalCard $size={size}>
         <ModalHeader>
           <ModalTitle>{title}</ModalTitle>

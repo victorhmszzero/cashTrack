@@ -21,7 +21,7 @@ const Toggle = styled.button`
   padding: 0.2rem;
   border-radius: 4px;
   transition: background 0.12s;
-  &:hover { background: ${p => p.theme.bg.hover***REMOVED*** }
+  &:hover { background: ${p => p.theme.bg.hover}; }
 `
 
 interface Props { selectedMonth: string }

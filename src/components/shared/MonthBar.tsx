@@ -22,14 +22,14 @@ const ArrowBtn = styled.button`
   justify-content: center;
   padding: 0.3rem;
   border: none;
-  border-radius: ${p => p.theme.radius.sm***REMOVED***
+  border-radius: ${p => p.theme.radius.sm};
   background: transparent;
-  color: ${p => p.theme.text.muted***REMOVED***
+  color: ${p => p.theme.text.muted};
   cursor: pointer;
   flex-shrink: 0;
   transition: all 0.15s;
 
-  &:hover:not(:disabled) { background: ${p => p.theme.bg.hover***REMOVED*** color: ${p => p.theme.text.primary***REMOVED*** }
+  &:hover:not(:disabled) { background: ${p => p.theme.bg.hover}; color: ${p => p.theme.text.primary}; }
   &:disabled { opacity: 0.3; cursor: default; }
 `
 
@@ -47,8 +47,8 @@ const MonthBtn = styled.button<{ $selected: boolean; $negative: boolean }>`
   flex-shrink: 0;
   padding: 0.3rem 0.75rem;
   border: none;
-  border-radius: ${p => p.theme.radius.sm***REMOVED***
-  font-family: ${p => p.theme.font.sans***REMOVED***
+  border-radius: ${p => p.theme.radius.sm};
+  font-family: ${p => p.theme.font.sans};
   font-size: 0.6875rem;
   font-weight: 600;
   cursor: pointer;
@@ -57,21 +57,21 @@ const MonthBtn = styled.button<{ $selected: boolean; $negative: boolean }>`
   background: ${p =>
     p.$selected ? p.theme.accent
     : p.$negative ? p.theme.danger + '18'
-    : p.theme.bg.subtle***REMOVED***
+    : p.theme.bg.subtle};
 
   color: ${p =>
     p.$selected ? 'white'
     : p.$negative ? p.theme.danger
-    : p.theme.text.muted***REMOVED***
+    : p.theme.text.muted};
 
-  box-shadow: ${p => p.$selected ? `0 2px 8px ${p.theme.accent}44` : 'none'***REMOVED***
+  box-shadow: ${p => p.$selected ? `0 2px 8px ${p.theme.accent}44` : 'none'};
 
   &:hover {
     background: ${p =>
       p.$selected ? p.theme.accent
       : p.$negative ? p.theme.danger + '28'
-      : p.theme.bg.hover***REMOVED***
-    color: ${p => p.$selected ? 'white' : p.theme.text.primary***REMOVED***
+      : p.theme.bg.hover};
+    color: ${p => p.$selected ? 'white' : p.theme.text.primary};
   }
 `
 

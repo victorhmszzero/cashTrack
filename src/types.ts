@@ -1,47 +1,37 @@
 // src/types.ts
 
-/**
- * Uma compra/cobrança em um cartão.
- * A cobrança aparece em todas as faturas de `startMonth` até `endMonth` (inclusive).
- * Para despesas recorrentes (sem fim previsto), `endMonth` é null.
- */
 export interface Purchase {
   id: string
   name: string
-  /** Valor da parcela/mensalidade */
   amountPerMonth: number
-  /** Mês inicial no formato "YYYY-MM" (ex: "2026-03") */
   startMonth: string
-  /** Mês final no formato "YYYY-MM", ou null se for recorrente sem fim */
   endMonth: string | null
-  /** Pessoa que usou o cartão e deve reembolso (opcional) */
   paidBy?: string
   notes?: string
+  purchaseDate?: string       // data real da compra, ex: "2026-03-15" (opcional)
+  categoryId?: string
+  overrides?: Record<string, number>  // yearMonth → valor customizado naquele mês
 }
 
-/** Cartão de crédito */
 export interface CreditCard {
   id: string
-  /** Nome de exibição (ex: "Atacadão") */
   name: string
-  /** Dia de vencimento da fatura */
   dueDay: number
   purchases: Purchase[]
 }
 
-/** Conta fixa (Enel, Água, etc.) */
 export interface FixedBill {
   id: string
   name: string
   amount: number
   active: boolean
-  overrides?: Record<string, number> 
+  overrides?: Record<string, number>
+  categoryId?: string
 }
-/** Pessoa que usa o cartão da mãe e paga via PIX */
+
 export interface PixPerson {
   id: string
   name: string
-  /** Itens mensais que esta pessoa deve pagar */
   items: PixItem[]
 }
 
@@ -53,14 +43,19 @@ export interface PixItem {
   endMonth: string | null
 }
 
-// ─── Estado geral da aplicação ────────────────────────────────────────────────
+export interface Category {
+  id: string
+  name: string
+  color: string
+  emoji: string
+}
 
 export interface AppSettings {
   salary: number
-  investPercent: number   // ex: 10 para 10%
-  reservePercent: number  // ex: 0 para 0%
-  theme: 'light' | 'dark' 
-    accentColor: string // <-- Adicione isso (ex: "#3b82f6" ou "pink")
+  investPercent: number
+  reservePercent: number
+  theme: 'light' | 'dark'
+  accentColor: string
 }
 
 export interface AppState {
@@ -68,6 +63,7 @@ export interface AppState {
   cards: CreditCard[]
   fixedBills: FixedBill[]
   pixPeople: PixPerson[]
+  categories: Category[]
 }
 
 // ─── Tipos calculados ─────────────────────────────────────────────────────────
@@ -78,16 +74,25 @@ export interface MonthlyCardTotal {
   total: number
 }
 
+export interface CategoryTotal {
+  categoryId: string
+  categoryName: string
+  color: string
+  emoji: string
+  total: number
+}
+
 export interface MonthSummary {
-  yearMonth: string          // "2026-03"
-  label: string              // "Mar/26"
+  yearMonth: string
+  label: string
   cardTotals: MonthlyCardTotal[]
   fixedTotal: number
   totalToPay: number
-  pixReceivable: number      // quanto vai receber via PIX (valor positivo)
-    pixBreakdown: { personId: string; personName: string; total: number }[] // <-- Novo
-  netToPay: number           // totalToPay - pixReceivable
-  balance: number            // salário - netToPay
+  pixReceivable: number
+  pixBreakdown: { personId: string; personName: string; total: number }[]
+  categoryBreakdown: CategoryTotal[]
+  netToPay: number
+  balance: number
   toInvest: number
   toLazer: number
 }

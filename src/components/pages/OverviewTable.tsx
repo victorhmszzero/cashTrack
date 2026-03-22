@@ -8,43 +8,43 @@ const StickyTh = styled(Th)`
   position: sticky;
   left: 0;
   z-index: 11;
-  background: ${p => p.theme.bg.card***REMOVED***
+  background: ${p => p.theme.bg.card};
 `
 
 const StickyTd = styled(Td)<{ $selected: boolean }>`
   position: sticky;
   left: 0;
   z-index: 5;
-  background: ${p => p.$selected ? p.theme.accent + '20' : p.theme.bg.card***REMOVED***
+  background: ${p => p.$selected ? p.theme.accent + '20' : p.theme.bg.card};
   font-weight: 600;
-  color: ${p => p.$selected ? p.theme.accent : p.theme.text.primary***REMOVED***
+  color: ${p => p.$selected ? p.theme.accent : p.theme.text.primary};
 `
 
 const AccentMono = styled.span`
-  font-family: ${p => p.theme.font.mono***REMOVED***
+  font-family: ${p => p.theme.font.mono};
   font-size: 0.75rem;
-  color: ${p => p.theme.accent***REMOVED***
+  color: ${p => p.theme.accent};
   opacity: 0.85;
 `
 
 const SuccessMono = styled.span`
-  font-family: ${p => p.theme.font.mono***REMOVED***
+  font-family: ${p => p.theme.font.mono};
   font-size: 0.75rem;
-  color: ${p => p.theme.success***REMOVED***
+  color: ${p => p.theme.success};
   font-weight: 600;
 `
 
 const DangerMono = styled.span`
-  font-family: ${p => p.theme.font.mono***REMOVED***
+  font-family: ${p => p.theme.font.mono};
   font-size: 0.75rem;
-  color: ${p => p.theme.danger***REMOVED***
+  color: ${p => p.theme.danger};
   font-weight: 600;
 `
 
 const WarnMono = styled.span`
-  font-family: ${p => p.theme.font.mono***REMOVED***
+  font-family: ${p => p.theme.font.mono};
   font-size: 0.75rem;
-  color: ${p => p.theme.warning***REMOVED***
+  color: ${p => p.theme.warning};
   opacity: 0.85;
 `
 

@@ -18,31 +18,31 @@ const COLOR_OPTIONS  = ['#3b82f6','#f97316','#10b981','#8b5cf6','#ec4899','#eab3
 
 const ColorDot = styled.div<{ $color: string; $selected?: boolean }>`
   width: 1.5rem; height: 1.5rem; border-radius: 50%;
-  background: ${p => p.$color***REMOVED*** cursor: pointer; flex-shrink: 0;
-  border: 2px solid ${p => p.$selected ? 'white' : 'transparent'***REMOVED***
-  outline: ${p => p.$selected ? `2px solid ${p.$color}` : 'none'***REMOVED***
+  background: ${p => p.$color}; cursor: pointer; flex-shrink: 0;
+  border: 2px solid ${p => p.$selected ? 'white' : 'transparent'};
+  outline: ${p => p.$selected ? `2px solid ${p.$color}` : 'none'};
   transition: transform 0.12s;
   &:hover { transform: scale(1.15); }
 `
 
 const EmojiBtn = styled.button<{ $selected: boolean }>`
   font-size: 1.25rem; width: 2.2rem; height: 2.2rem;
-  border-radius: ${p => p.theme.radius.sm***REMOVED***
-  border: 2px solid ${p => p.$selected ? p.theme.accent : p.theme.border***REMOVED***
-  background: ${p => p.$selected ? p.theme.accentSoft : 'transparent'***REMOVED***
+  border-radius: ${p => p.theme.radius.sm};
+  border: 2px solid ${p => p.$selected ? p.theme.accent : p.theme.border};
+  background: ${p => p.$selected ? p.theme.accentSoft : 'transparent'};
   cursor: pointer; display: flex; align-items: center; justify-content: center;
 `
 
 const CategoryHeader = styled.button`
   width: 100%; display: flex; align-items: center; justify-content: space-between;
   padding: 1rem 1.25rem; border: none; background: transparent;
-  cursor: pointer; font-family: ${p => p.theme.font.sans***REMOVED*** transition: background 0.12s;
-  &:hover { background: ${p => p.theme.bg.hover***REMOVED*** }
+  cursor: pointer; font-family: ${p => p.theme.font.sans}; transition: background 0.12s;
+  &:hover { background: ${p => p.theme.bg.hover}; }
 `
 
 const BulletDot = styled.span<{ $color: string }>`
   display: inline-block; width: 8px; height: 8px;
-  border-radius: 50%; background: ${p => p.$color***REMOVED*** flex-shrink: 0;
+  border-radius: 50%; background: ${p => p.$color}; flex-shrink: 0;
 `
 
 interface Props { selectedMonth: string }
