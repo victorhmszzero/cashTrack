@@ -164,7 +164,9 @@ export function Dashboard({ selectedMonth, summaries }: Props) {
                   </PieChart>
                 </ResponsiveContainer>
                 <Flex $col $gap={1} style={{ marginTop: '0.5rem' }}>
-                  {pieData.slice(0, 5).map(d => (
+                  {pieData
+                  .sort((a, b) => b.value - a.value)
+                  .map(d => (
                     <Flex key={d.name} $justify="space-between" $align="center">
                       <Flex $align="center" $gap={2}>
                         <div style={{ width: 8, height: 8, borderRadius: '50%', background: d.color, flexShrink: 0 }} />

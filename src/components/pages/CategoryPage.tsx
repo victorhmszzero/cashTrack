@@ -45,6 +45,8 @@ const BulletDot = styled.span<{ $color: string }>`
   border-radius: 50%; background: ${p => p.$color}; flex-shrink: 0;
 `
 
+const UNCATEGORIZED_ID = '__uncategorized__'
+
 interface Props { selectedMonth: string }
 
 export function CategoryPage({ selectedMonth }: Props) {
@@ -58,12 +60,13 @@ export function CategoryPage({ selectedMonth }: Props) {
   // Calcula total de cada categoria no mês selecionado
   const getCatTotal = (catId: string) => {
     let total = 0
+    const isUncategorized = catId === UNCATEGORIZED_ID
     for (const card of cards)
       for (const p of card.purchases)
-        if (p.categoryId === catId && isActiveInMonth(p.startMonth, p.endMonth, selectedMonth))
+        if ((isUncategorized ? !p.categoryId : p.categoryId === catId) && isActiveInMonth(p.startMonth, p.endMonth, selectedMonth))
           total += p.overrides?.[selectedMonth] ?? p.amountPerMonth
     for (const bill of fixedBills)
-      if (bill.categoryId === catId && bill.active)
+      if ((isUncategorized ? !bill.categoryId : bill.categoryId === catId) && bill.active)
         total += bill.overrides?.[selectedMonth] ?? bill.amount
     return total
   }
@@ -71,16 +74,17 @@ export function CategoryPage({ selectedMonth }: Props) {
   // Compras vinculadas a uma categoria
   const getLinkedItems = (catId: string) => {
     const items: { label: string; sub: string; value: number; active: boolean }[] = []
+    const isUncategorized = catId === UNCATEGORIZED_ID
     for (const card of cards)
       for (const p of card.purchases)
-        if (p.categoryId === catId)
+        if (isUncategorized ? !p.categoryId : p.categoryId === catId)
           items.push({
             label: p.name, sub: card.name,
             value: p.overrides?.[selectedMonth] ?? p.amountPerMonth,
             active: isActiveInMonth(p.startMonth, p.endMonth, selectedMonth),
           })
     for (const bill of fixedBills)
-      if (bill.categoryId === catId)
+      if (isUncategorized ? !bill.categoryId : bill.categoryId === catId)
         items.push({
           label: bill.name, sub: 'Conta fixa',
           value: bill.overrides?.[selectedMonth] ?? bill.amount,
@@ -89,7 +93,7 @@ export function CategoryPage({ selectedMonth }: Props) {
     return items
   }
 
-  const grandTotal = cats.reduce((s, c) => s + getCatTotal(c.id), 0)
+  const grandTotal = cats.reduce((s, c) => s + getCatTotal(c.id), 0) + getCatTotal(UNCATEGORIZED_ID)
 
   const openNew = () => { setForm({ name: '', emoji: '🏠', color: '#3b82f6' }); setModal({}) }
   const openEdit = (cat: typeof cats[0]) => { setForm({ name: cat.name, emoji: cat.emoji, color: cat.color }); setModal({ cat }) }
@@ -111,31 +115,41 @@ export function CategoryPage({ selectedMonth }: Props) {
         <PrimaryButton onClick={openNew}><Plus size={15} /> Nova categoria</PrimaryButton>
       </Flex>
 
-      {/* Resumo visual */}
-      {cats.length > 0 && (
+      {/* Resumo visual — ordenado por % decrescente */}
+      {grandTotal > 0 && (
         <Card>
           <div style={{ padding: '1.25rem' }}>
             <SectionTitle style={{ marginBottom: '1rem' }}>Distribuição de gastos</SectionTitle>
             <Flex $col $gap={3}>
-              {cats.map(cat => {
-                const total = getCatTotal(cat.id)
-                const pct   = grandTotal > 0 ? (total / grandTotal) * 100 : 0
-                return total > 0 ? (
-                  <div key={cat.id}>
-                    <Flex $justify="space-between" $align="center" style={{ marginBottom: '0.3rem' }}>
-                      <Flex $align="center" $gap={2}>
-                        <span>{cat.emoji}</span>
-                        <Muted $size="xs" style={{ fontWeight: 600 }}>{cat.name}</Muted>
-                        <Muted $size="xs">({pct.toFixed(0)}%)</Muted>
+              {[
+                ...cats.map(cat => ({
+                  id: cat.id, emoji: cat.emoji, name: cat.name,
+                  color: cat.color, total: getCatTotal(cat.id),
+                })),
+                ...(getCatTotal(UNCATEGORIZED_ID) > 0
+                  ? [{ id: UNCATEGORIZED_ID, emoji: '❓', name: 'Sem categoria', color: '#94a3b8', total: getCatTotal(UNCATEGORIZED_ID) }]
+                  : []),
+              ]
+                .filter(c => c.total > 0)
+                .sort((a, b) => b.total - a.total)
+                .map(c => {
+                  const pct = (c.total / grandTotal) * 100
+                  return (
+                    <div key={c.id}>
+                      <Flex $justify="space-between" $align="center" style={{ marginBottom: '0.3rem' }}>
+                        <Flex $align="center" $gap={2}>
+                          <span>{c.emoji}</span>
+                          <Muted $size="xs" style={{ fontWeight: 600 }}>{c.name}</Muted>
+                          <Muted $size="xs">({pct.toFixed(0)}%)</Muted>
+                        </Flex>
+                        <MoneyValue value={c.total} />
                       </Flex>
-                      <MoneyValue value={total} />
-                    </Flex>
-                    <ProgressTrack>
-                      <ProgressFill $pct={pct} $color={cat.color} />
-                    </ProgressTrack>
-                  </div>
-                ) : null
-              })}
+                      <ProgressTrack>
+                        <ProgressFill $pct={pct} $color={c.color} />
+                      </ProgressTrack>
+                    </div>
+                  )
+                })}
             </Flex>
           </div>
         </Card>
@@ -213,6 +227,58 @@ export function CategoryPage({ selectedMonth }: Props) {
           </div>
         </Card>
       )}
+
+      {/* Sem categoria */}
+      {getCatTotal(UNCATEGORIZED_ID) > 0 && (() => {
+        const uncatTotal = getCatTotal(UNCATEGORIZED_ID)
+        const uncatItems = getLinkedItems(UNCATEGORIZED_ID)
+        const isExp = expanded === UNCATEGORIZED_ID
+        return (
+          <Card style={{ borderStyle: 'dashed' }}>
+            <CategoryHeader onClick={() => setExpanded(prev => prev === UNCATEGORIZED_ID ? null : UNCATEGORIZED_ID)}>
+              <Flex $align="center" $gap={3}>
+                <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>❓</span>
+                <div style={{ textAlign: 'left' }}>
+                  <Flex $align="center" $gap={2}>
+                    <BulletDot $color="#94a3b8" />
+                    <p style={{ fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>Sem categoria</p>
+                  </Flex>
+                  <Muted $size="xs">{uncatItems.length} item(s) — edite cada um para categorizar</Muted>
+                </div>
+              </Flex>
+              <Flex $align="center" $gap={3}>
+                <MoneyValue value={uncatTotal} />
+                {isExp ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              </Flex>
+            </CategoryHeader>
+
+            {isExp && (
+              <div style={{ borderTop: `1px solid` }}>
+                <TableWrapper>
+                  <Table>
+                    <Thead>
+                      <Tr>
+                        <Th>Item</Th>
+                        <Th>Origem</Th>
+                        <Th $align="right">Valor/mês</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {uncatItems.map((item, i) => (
+                        <Tr key={i} $faded={!item.active}>
+                          <Td style={{ fontWeight: 500 }}>{item.label}</Td>
+                          <Td $muted>{item.sub}</Td>
+                          <Td $align="right"><MoneyValue value={item.value} /></Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                </TableWrapper>
+              </div>
+            )}
+          </Card>
+        )
+      })()}
 
       {/* Modal criar/editar */}
       {modal !== null && (

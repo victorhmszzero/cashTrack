@@ -95,31 +95,37 @@ export function computeSummaries(state: AppState): MonthSummary[] {
     const toInvest = balance > 0 ? balance * (settings.investPercent / 100) : 0
     const toLazer = balance > 0 ? balance * ((100 - settings.investPercent) / 100) : 0
 
-    // Category breakdown — soma compras ativas por categoria
+    // Category breakdown — inclui bucket "sem categoria"
+    const UNCATEGORIZED_ID = '__uncategorized__'
     const catMap: Record<string, number> = {}
     for (const card of cards) {
       for (const p of card.purchases) {
-        if (p.categoryId && isActiveInMonth(p.startMonth, p.endMonth, ym)) {
-          catMap[p.categoryId] = (catMap[p.categoryId] ?? 0) + purchaseAmountInMonth(p, ym)
-        }
+        if (!isActiveInMonth(p.startMonth, p.endMonth, ym)) continue
+        const key = p.categoryId || UNCATEGORIZED_ID
+        catMap[key] = (catMap[key] ?? 0) + purchaseAmountInMonth(p, ym)
       }
     }
     for (const bill of fixedBills) {
-      if (bill.categoryId && bill.active) {
-        catMap[bill.categoryId] = (catMap[bill.categoryId] ?? 0) + (bill.overrides?.[ym] ?? bill.amount)
-      }
+      if (!bill.active) continue
+      const key = bill.categoryId || UNCATEGORIZED_ID
+      catMap[key] = (catMap[key] ?? 0) + (bill.overrides?.[ym] ?? bill.amount)
     }
 
-    const categoryBreakdown = (categories ?? [])
-      .map(cat => ({
-        categoryId: cat.id,
-        categoryName: cat.name,
-        color: cat.color,
-        emoji: cat.emoji,
-        total: catMap[cat.id] ?? 0,
-      }))
-      .filter(c => c.total > 0)
-      .sort((a, b) => b.total - a.total)
+    const categoryBreakdown = [
+      ...(categories ?? [])
+        .map(cat => ({
+          categoryId: cat.id,
+          categoryName: cat.name,
+          color: cat.color,
+          emoji: cat.emoji,
+          total: catMap[cat.id] ?? 0,
+        }))
+        .filter(c => c.total > 0),
+      // Sem categoria — sempre por último
+      ...(catMap[UNCATEGORIZED_ID]
+        ? [{ categoryId: UNCATEGORIZED_ID, categoryName: 'Sem categoria', color: '#94a3b8', emoji: '❓', total: catMap[UNCATEGORIZED_ID] }]
+        : []),
+    ].sort((a, b) => a.categoryId === UNCATEGORIZED_ID ? 1 : b.categoryId === UNCATEGORIZED_ID ? -1 : b.total - a.total)
 
     return {
       yearMonth: ym, label: formatMonthLabel(ym),
