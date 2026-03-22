@@ -66,16 +66,26 @@ export function SettingsPage() {
     })
   }
 
-  const exportJSON = () => {
-    const { settings: s, cards, fixedBills, pixPeople } = useStore.getState()
-    const blob = new Blob([JSON.stringify({ settings: s, cards, fixedBills, pixPeople }, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `mae-contas-backup-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+const exportJSON = () => {
+  const { settings: s, cards, fixedBills, pixPeople } = useStore.getState()
+
+  const defaultName = `contas-backup-${new Date().toISOString().slice(0, 10)}`
+  const fileName = prompt('Nome do arquivo:', defaultName)
+
+  if (!fileName) return
+
+  const blob = new Blob(
+    [JSON.stringify({ settings: s, cards, fixedBills, pixPeople }, null, 2)],
+    { type: 'application/json' }
+  )
+
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = fileName.endsWith('.json') ? fileName : `${fileName}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

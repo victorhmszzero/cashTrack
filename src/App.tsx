@@ -72,7 +72,7 @@ export default function App() {
           <HeaderInner>
             <Logo>
               <span style={{ fontSize: '1.125rem' }}>💰</span>
-              <LogoText>Mãe Contas</LogoText>
+              <LogoText>Contas</LogoText>
             </Logo>
             {showMonthBar && <MonthBar months={summaries} selected={validMonth} onSelect={setSelectedMonth} />}
             <ThemeBtn onClick={() => updateSettings({ theme: isDark ? 'light' : 'dark' })} title={isDark ? 'Tema claro' : 'Tema escuro'}>
