@@ -1,142 +1,160 @@
 // src/App.tsx
 
-import { useState, useEffect } from 'react';
-import type { Cartao, Parcela, BancoDivida } from './types';
-import { FinancialTable } from './components/FinancialTable';
-import { DebtManager } from './components/DebtManager';
-import { AddTransactionForm } from './components/AddTransactionForm';
+import { useState, useMemo, useEffect } from 'react'
+import {
+  LayoutDashboard,
+  CreditCard,
+  Smartphone,
+  Receipt,
+  Settings,
+  Table2,
+  Sun,
+  Moon,
+} from 'lucide-react'
+import { useStore } from './store/useStore'
+import { computeSummaries } from './utils/calculations'
+import { MonthBar } from './components/shared/MonthBar'
+import { Dashboard } from './components/pages/Dashboard'
+import { CardsPage } from './components/pages/CardsPage'
+import { PixPage } from './components/pages/PixPage'
+import { FixedBillsPage } from './components/pages/FixedBillsPage'
+import { OverviewTable } from './components/pages/OverviewTable'
+import { SettingsPage } from './components/pages/SettingsPage'
 
-function App() {
-  // 1. Carregar dados do LocalStorage ao iniciar
-  const [cartoes, setCartoes] = useState<Cartao[]>(() => {
-    const saved = localStorage.getItem('@MinhasContas:cartoes');
-    return saved ? JSON.parse(saved) : [];
-  });
+type Page = 'dashboard' | 'overview' | 'cards' | 'pix' | 'fixed' | 'settings'
 
-  const [salario, setSalario] = useState(2000);
-  const [abaAtiva, setAbaAtiva] = useState('home');
+const NAV: { id: Page; label: string; icon: React.ReactNode }[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+  { id: 'overview', label: 'Planilha', icon: <Table2 size={18} /> },
+  { id: 'cards', label: 'Cartões', icon: <CreditCard size={18} /> },
+  { id: 'pix', label: 'PIX', icon: <Smartphone size={18} /> },
+  { id: 'fixed', label: 'Contas Fixas', icon: <Receipt size={18} /> },
+  { id: 'settings', label: 'Config', icon: <Settings size={18} /> },
+]
 
-  // 2. Salvar no LocalStorage sempre que algo mudar
-  useEffect(() => {
-    localStorage.setItem('@MinhasContas:cartoes', JSON.stringify(cartoes));
-  }, [cartoes]);
-
-  // Funções de manipulação
-  const adicionarTransacao = (cartaoId: string, nova: Parcela) => {
-    setCartoes(prev => prev.map(c => 
-      c.id === cartaoId ? { ...c, transacoes: [...c.transacoes, nova] } : c
-    ));
-  ***REMOVED***
-
-  const proximaParcela = (cartaoId: string, transacaoId: string) => {
-    setCartoes(prev => prev.map(c => ({
-      ...c,
-      transacoes: c.transacoes.map(t => 
-        t.id === transacaoId ? { ...t, parcelaAtual: Math.min(t.parcelaAtual + 1, t.totalParcelas) } : t
-      )
-    })));
-  ***REMOVED***
-
-  // Cálculos Automáticos
-  const todasTransacoes = cartoes.flatMap(c => c.transacoes);
-  const totalFaturas = todasTransacoes.reduce((acc, t) => acc + t.valor, 0);
+export default function App() {
+  const state = useStore()
+  const { settings, updateSettings } = useStore() // Pegar do Zustand
+  const [page, setPage] = useState<Page>('dashboard')
   
-  // O que as outras pessoas devem pagar (Soma de tudo que não é 'Eu')
-  const totalAReceber = todasTransacoes
-    .filter(t => t.responsavel !== 'Eu')
-    .reduce((acc, t) => acc + t.valor, 0);
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  })
 
-  const saldoFinal = (salario + totalAReceber) - totalFaturas;
+  const isLight = settings.theme === 'light'
+  
+  const toggleTheme = () => {
+    updateSettings({ theme: isLight ? 'dark' : 'light' })
+  }
+
+  // Sincroniza o Tema e a Cor de Destaque
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    // CORREÇÃO AQUI: Adiciona a classe 'dark' se o tema for dark
+    if (settings.theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+
+    // Aplica a cor de destaque escolhida
+    root.style.setProperty('--accent', settings.accentColor || '#3b82f6');
+    // Cria uma versão transparente para fundos e hover
+    root.style.setProperty('--accent-soft', (settings.accentColor || '#3b82f6') + '20');
+  }, [settings.theme, settings.accentColor])
+
+  const summaries = useMemo(() => computeSummaries(state), [state])
+
+
+  // Validate selectedMonth is in summaries
+  const validSelectedMonth = summaries.find((m) => m.yearMonth === selectedMonth)
+    ? selectedMonth
+    : summaries[0]?.yearMonth ?? selectedMonth
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <nav className="flex gap-4 mb-8 overflow-x-auto pb-2">
-        <button 
-          onClick={() => setAbaAtiva('home')}
-          className={`px-6 py-2 rounded-full font-bold ${abaAtiva === 'home' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-        >
-          Resumo Geral
-        </button>
-        {cartoes.map(c => (
-          <button 
-            key={c.id} 
-            onClick={() => setAbaAtiva(c.id)}
-            className={`px-6 py-2 rounded-full font-bold transition-all`}
-            style={{ 
-              backgroundColor: abaAtiva === c.id ? c.cor : '#e5e7eb',
-              color: abaAtiva === c.id ? 'white' : 'black'
-            }}
-          >
-            {c.nome}
-          </button>
-        ))}
-        <button 
-          onClick={() => {
-            const nome = prompt('Nome do Cartão?');
-            if(nome) setCartoes([...cartoes, { id: Date.now().toString(), nome, cor: '#'+Math.floor(Math.random()*16777215).toString(16), diaVencimento: 10, transacoes: [] }]);
-          }}
-          className="px-6 py-2 rounded-full bg-dashed border-2 border-gray-400 text-gray-600 font-bold"
-        >
-          + Novo Cartão
-        </button>
+    <div className="min-h-screen bg-surface-900 flex flex-col">
+      {/* Top bar */}
+      <header className="border-b border-surface-600 sticky top-0 z-20 bg-surface-900/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-lg">💰</span>
+            <span className="font-semibold text-slate-100 hidden sm:block">Contas</span>
+          </div>
+
+          {/* Month selector — only on relevant pages */}
+          {['dashboard', 'overview', 'cards', 'pix', 'fixed'].includes(page) && (
+            <MonthBar
+              months={summaries}
+              selected={validSelectedMonth}
+              onSelect={setSelectedMonth}
+            />
+          )}
+
+    <button
+      onClick={toggleTheme}
+      className="btn-ghost p-2 flex-shrink-0"
+      title={isLight ? 'Mudar para tema escuro' : 'Mudar para tema claro'}
+    >
+      {isLight ? <Moon size={17} /> : <Sun size={17} />}
+    </button>
+        </div>
+      </header>
+
+      <div className="flex flex-1 max-w-7xl w-full mx-auto">
+        {/* Sidebar */}
+        <aside className="hidden md:flex flex-col gap-1 w-48 flex-shrink-0 p-4 border-r border-surface-600">
+          {NAV.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setPage(item.id)}
+              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left
+                ${page === item.id
+                  ? 'bg-accent-blue text-white'
+                  : 'text-slate-400 hover:bg-surface-700 hover:text-slate-200'}`}
+            >
+              {item.icon}
+              {item.label}
+            </button>
+          ))}
+        </aside>
+
+        {/* Main content */}
+        <main className="flex-1 p-4 md:p-6 overflow-auto">
+          {page === 'dashboard' && (
+            <Dashboard selectedMonth={validSelectedMonth} summaries={summaries} />
+          )}
+          {page === 'overview' && (
+            <OverviewTable
+              summaries={summaries}
+              selectedMonth={validSelectedMonth}
+              onSelectMonth={setSelectedMonth}
+            />
+          )}
+          {page === 'cards' && <CardsPage selectedMonth={validSelectedMonth} />}
+          {page === 'pix' && <PixPage selectedMonth={validSelectedMonth} />}
+          {page === 'fixed' && <FixedBillsPage selectedMonth={validSelectedMonth} />}
+          {page === 'settings' && <SettingsPage />}
+        </main>
+      </div>
+
+      {/* Bottom nav mobile */}
+      <nav className="md:hidden border-t border-surface-600 bg-surface-900/90 backdrop-blur-md sticky bottom-0 z-20">
+        <div className="flex justify-around">
+          {NAV.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setPage(item.id)}
+              className={`flex flex-col items-center gap-1 px-3 py-3 text-[10px] font-medium transition-colors
+                ${page === item.id ? 'text-accent-blue' : 'text-slate-500'}`}
+            >
+              {item.icon}
+              {item.label}
+            </button>
+          ))}
+        </div>
       </nav>
-
-      {abaAtiva === 'home' ? (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-blue-700 text-white p-6 rounded-2xl shadow-xl">
-              <h3 className="text-blue-100">Meu Salário</h3>
-              <input type="number" value={salario} onChange={e => setSalario(Number(e.target.value))} className="bg-transparent text-3xl font-bold border-b w-full outline-none" />
-              <div className="mt-4">
-                <p className="text-sm opacity-80">Saldo após pagar tudo:</p>
-                <p className={`text-2xl font-bold ${saldoFinal < 0 ? 'text-red-300' : 'text-green-300'}`}>
-                  R$ {saldoFinal.toFixed(2)}
-                </p>
-              </div>
-            </div>
-
-            <div className="md:col-span-2">
-              <DebtManager 
-                saldoDisponivel={saldoFinal > 0 ? saldoFinal : 0} 
-                dividas={[
-                  { nome: 'Santander', valorNegativo: 1298.00, prioridade: 1 },
-                  { nome: 'Bradesco', valorNegativo: 1342.25, prioridade: 2 }
-                ]} 
-              />
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl border">
-            <h3 className="font-bold text-lg mb-4">Pessoas que devem pagar este mês (SZD)</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {['Cris', 'Isaura', 'Edilaine', 'Day'].map(pess => {
-                const valorPess = todasTransacoes
-                  .filter(t => t.responsavel === pess)
-                  .reduce((acc, t) => acc + t.valor, 0);
-                return (
-                  <div key={pess} className="p-3 bg-gray-50 rounded-lg border">
-                    <p className="text-gray-500 text-sm">{pess}</p>
-                    <p className="text-xl font-bold text-blue-600">R$ {valorPess.toFixed(2)}</p>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-white p-4 rounded-xl shadow">
-          <AddTransactionForm 
-            cartaoId={abaAtiva} 
-            onAdd={adicionarTransacao} 
-          />
-          <FinancialTable 
-            cartao={cartoes.find(c => c.id === abaAtiva)!} 
-          />
-          {/* Botão de "Pagar Parcelas" na tabela pode ser adicionado aqui */}
-        </div>
-      )}
     </div>
-  );
+  )
 }
-
-export default App;
