@@ -49,7 +49,8 @@ export function Modal({ title, onClose, children, size = 'md' }: Props) {
   }, [onClose])
 
   return (
-    <Overlay onClick={e => e.target === e.currentTarget && onClose()}>
+    <Overlay>
+    {/* <Overlay onClick={e => e.target === e.currentTarget && onClose()}> */}
       <ModalCard $size={size}>
         <ModalHeader>
           <ModalTitle>{title}</ModalTitle>

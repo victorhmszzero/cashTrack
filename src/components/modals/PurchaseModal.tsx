@@ -65,6 +65,15 @@ export function PurchaseModal({ initial, selectedMonth, onSave, onClose }: Props
           placeholder="0,00"
         />
       </FormRow>
+        
+        <FormRow>
+          <Label>Observações (Opcional)</Label>
+          <Input
+            value={form.notes || ''}
+            onChange={e => set('notes', e.target.value)}
+            placeholder="Ex: Loja X"
+          />
+        </FormRow>
 
       <FormGrid>
         <FormRow>
@@ -120,7 +129,7 @@ export function PurchaseModal({ initial, selectedMonth, onSave, onClose }: Props
         </FormRow>
       </FormGrid>
 
-      <FormGrid>
+      {/* <FormGrid> */}
         <FormRow>
           <Label>Data da compra (opcional)</Label>
           <Input
@@ -129,15 +138,8 @@ export function PurchaseModal({ initial, selectedMonth, onSave, onClose }: Props
             onChange={e => set('purchaseDate', e.target.value)}
           />
         </FormRow>
-        <FormRow>
-          <Label>Observações</Label>
-          <Input
-            value={form.notes || ''}
-            onChange={e => set('notes', e.target.value)}
-            placeholder="Opcional"
-          />
-        </FormRow>
-      </FormGrid>
+
+      {/* </FormGrid> */}
 
       <Flex $justify="flex-end" $gap={2}>
         <GhostButton onClick={onClose}>Cancelar</GhostButton>
