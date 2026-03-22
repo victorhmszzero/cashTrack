@@ -6,9 +6,10 @@ interface Props {
   colored?: boolean
   className?: string
   size?: 'sm' | 'md' | 'lg'
+  style?: React.CSSProperties
 }
 
-export function MoneyValue({ value, colored = false, className = '', size = 'sm' }: Props) {
+export function MoneyValue({ value, colored = false, className = '', size = 'sm', style }: Props) {
   return (
     <MonoText
       className={className}

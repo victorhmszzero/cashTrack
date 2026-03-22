@@ -6,10 +6,10 @@ import { MoneyValue } from '../shared/MoneyValue'
 import { Modal } from '../shared/Modal'
 import { formatMonthLabel } from '@/utils/calculations'
 import {
-  Card, Flex, PageTitle, Muted, SectionTitle,
+  Card, Flex, PageTitle, Muted,
   PrimaryButton, GhostButton, DangerButton, IconButton,
   Table, Thead, Tbody, Tfoot, Th, Td, Tr, TableWrapper,
-  FormRow, Label, Input, Alert,
+  FormRow, Label, Input, Select, Alert, Badge,
 } from '@/styles/ui'
 
 const Toggle = styled.button`
@@ -27,8 +27,11 @@ const Toggle = styled.button`
 interface Props { selectedMonth: string }
 
 export function FixedBillsPage({ selectedMonth }: Props) {
-  const { fixedBills, addFixedBill, updateFixedBill, deleteFixedBill, setFixedBillOverride } = useStore()
+  const { fixedBills, categories, addFixedBill, updateFixedBill, deleteFixedBill, setFixedBillOverride } = useStore()
   const [modal, setModal] = useState<any>(null)
+  const [catId, setCatId] = useState<string>('')
+
+  const getCat = (id?: string) => (categories ?? []).find(c => c.id === id)
 
   const total = fixedBills
     .filter(b => b.active)
@@ -43,7 +46,7 @@ export function FixedBillsPage({ selectedMonth }: Props) {
             Total em {formatMonthLabel(selectedMonth)}: <MoneyValue value={total} />
           </Muted>
         </div>
-        <PrimaryButton onClick={() => setModal({ isNew: true })}>
+        <PrimaryButton onClick={() => { setCatId(''); setModal({ isNew: true }) }}>
           <Plus size={15} /> Nova conta
         </PrimaryButton>
       </Flex>
@@ -66,7 +69,14 @@ export function FixedBillsPage({ selectedMonth }: Props) {
                 const hasOverride = override !== undefined
                 return (
                   <Tr key={bill.id} $faded={!bill.active}>
-                    <Td style={{ fontWeight: 500 }}>{bill.name}</Td>
+                    <Td>
+                      <Flex $align="center" $gap={2}>
+                        {getCat(bill.categoryId) && (
+                          <span style={{ fontSize: '0.875rem' }}>{getCat(bill.categoryId)!.emoji}</span>
+                        )}
+                        <span style={{ fontWeight: 500 }}>{bill.name}</span>
+                      </Flex>
+                    </Td>
                     <Td $align="right" $muted><MoneyValue value={bill.amount} /></Td>
                     <Td $align="right">
                       <MoneyValue
@@ -86,7 +96,7 @@ export function FixedBillsPage({ selectedMonth }: Props) {
                         <IconButton title="Ajustar neste mês" onClick={() => setModal({ bill, isOverride: true })}>
                           <CalendarDays size={13} style={{ color: '#f97316' }} />
                         </IconButton>
-                        <IconButton onClick={() => setModal({ bill, isOverride: false })}>
+                        <IconButton onClick={() => { setCatId(bill.categoryId || ''); setModal({ bill, isOverride: false }) }}>
                           <Pencil size={13} />
                         </IconButton>
                       </Flex>
@@ -121,17 +131,28 @@ export function FixedBillsPage({ selectedMonth }: Props) {
             if (modal.isOverride) {
               setFixedBillOverride(modal.bill.id, selectedMonth, amt === modal.bill.amount ? null : amt)
             } else if (modal.isNew) {
-              addFixedBill({ name, amount: amt, active: true })
+              addFixedBill({ name, amount: amt, active: true, categoryId: catId || undefined })
             } else {
-              updateFixedBill(modal.bill.id, { name, amount: amt })
+              updateFixedBill(modal.bill.id, { name, amount: amt, categoryId: catId || undefined })
             }
             setModal(null)
           }}>
             {!modal.isOverride && (
-              <FormRow>
-                <Label>Nome da Conta</Label>
-                <Input name="name" defaultValue={modal.bill?.name} required autoFocus />
-              </FormRow>
+              <>
+                <FormRow>
+                  <Label>Nome da Conta</Label>
+                  <Input name="name" defaultValue={modal.bill?.name} required autoFocus />
+                </FormRow>
+                <FormRow>
+                  <Label>Categoria</Label>
+                  <Select value={catId} onChange={e => setCatId(e.target.value)}>
+                    <option value="">Sem categoria</option>
+                    {(categories ?? []).map(c => (
+                      <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>
+                    ))}
+                  </Select>
+                </FormRow>
+              </>
             )}
             <FormRow>
               <Label>{modal.isOverride ? `Valor em ${formatMonthLabel(selectedMonth)}` : 'Valor Base (R$)'}</Label>
