@@ -26,3 +26,5 @@ local.Readme.md
 .vite/
 cashTrack-backup
 src/data/initialData.ts
+*.url
+public/Icon Final.ico
