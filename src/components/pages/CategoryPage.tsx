@@ -13,8 +13,8 @@ import {
   FormRow, Label, Input, ProgressTrack, ProgressFill,
 } from '@/styles/ui'
 
-const EMOJI_OPTIONS = ['🏠','🍔','🏥','🎉','👕','💼','📚','🚗','💊','✈️','🎮','💰','🐾','🎵','🛒']
-const COLOR_OPTIONS  = ['#3b82f6','#f97316','#10b981','#8b5cf6','#ec4899','#eab308','#64748b','#ef4444','#06b6d4','#84cc16']
+const EMOJI_OPTIONS = ['🏠', '🍔', '🏥', '🎉', '👕', '💼', '📚', '🚗', '💊', '✈️', '🎮', '💰', '🐾', '🎵', '🛒']
+const COLOR_OPTIONS = ['#3b82f6', '#f97316', '#10b981', '#8b5cf6', '#ec4899', '#eab308', '#64748b', '#ef4444', '#06b6d4', '#84cc16']
 
 const ColorDot = styled.div<{ $color: string; $selected?: boolean }>`
   width: 1.5rem; height: 1.5rem; border-radius: 50%;
@@ -158,8 +158,12 @@ export function CategoryPage({ selectedMonth }: Props) {
       {/* Lista de categorias */}
       {cats.map(cat => {
         const total = getCatTotal(cat.id)
-        const items = getLinkedItems(cat.id)
+        // 1. Filtre para pegar apenas os itens ATIVOS no mês
+        const allItems = getLinkedItems(cat.id)
+        const activeItems = allItems.filter(item => item.active)
+
         const isExp = expanded === cat.id
+
 
         return (
           <Card key={cat.id}>
@@ -171,7 +175,7 @@ export function CategoryPage({ selectedMonth }: Props) {
                     <BulletDot $color={cat.color} />
                     <p style={{ fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>{cat.name}</p>
                   </Flex>
-                  <Muted $size="xs">{items.length} item(s) vinculado(s)</Muted>
+                  <Muted $size="xs">{activeItems.length} item(s) este mês</Muted>
                 </div>
               </Flex>
               <Flex $align="center" $gap={3}>
@@ -183,7 +187,7 @@ export function CategoryPage({ selectedMonth }: Props) {
             {isExp && (
               <div style={{ borderTop: "1px solid" }}>
                 <Flex $align="center" $justify="space-between" style={{ padding: '0.625rem 1rem', background: 'rgba(0,0,0,0.02)' }}>
-                  <Muted $size="xs">{items.length} item(s)</Muted>
+                  <Muted $size="xs">{activeItems.length} item(s)</Muted>
                   <Flex $gap={2}>
                     <GhostButton onClick={() => openEdit(cat)}><Pencil size={13} /> Editar</GhostButton>
                     <DangerButton onClick={() => { if (confirm(`Excluir categoria "${cat.name}"? As compras não serão apagadas.`)) deleteCategory(cat.id) }}>
@@ -191,15 +195,16 @@ export function CategoryPage({ selectedMonth }: Props) {
                     </DangerButton>
                   </Flex>
                 </Flex>
-                {items.length > 0 ? (
+                {activeItems.length > 0 ? (
                   <TableWrapper>
                     <Table>
                       <Thead>
                         <Tr><Th>Item</Th><Th>Origem</Th><Th $align="right">Valor/mês</Th></Tr>
                       </Thead>
                       <Tbody>
-                        {items.map((item, i) => (
-                          <Tr key={i} $faded={!item.active}>
+                        {activeItems.map((item, i) => (
+                          <Tr key={i}>
+                            {/* <Tr key={item.id}> */}
                             <Td style={{ fontWeight: 500 }}>{item.label}</Td>
                             <Td $muted>{item.sub}</Td>
                             <Td $align="right"><MoneyValue value={item.value} /></Td>

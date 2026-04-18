@@ -85,6 +85,10 @@ export function CardsPage({ selectedMonth }: Props) {
       </Flex>
 
       {cards.map(card => {
+        const monthlyPurchases = card.purchases.filter(p =>
+          isActiveInMonth(p.startMonth, p.endMonth, selectedMonth)
+        )
+
         const activeTotal = card.purchases
           .filter(p => isActiveInMonth(p.startMonth, p.endMonth, selectedMonth))
           .reduce((s, p) => s + (p.overrides?.[selectedMonth] ?? p.amountPerMonth), 0)
@@ -109,7 +113,7 @@ export function CardsPage({ selectedMonth }: Props) {
             {expanded && (
               <ExpandedSection>
                 <ExpandedToolbar>
-                  <Muted $size="xs">{card.purchases.length} compra(s)</Muted>
+                  <Muted $size="xs">{monthlyPurchases.length} compra(s)</Muted>
                   <Flex $gap={2}>
                     <GhostButton onClick={() => setCardModal({ card })}><Pencil size={13} /> Editar</GhostButton>
                     <DangerButton onClick={() => { if (confirm(`Excluir cartão ${card.name}?`)) deleteCard(card.id) }}>
@@ -133,22 +137,23 @@ export function CardsPage({ selectedMonth }: Props) {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {[...card.purchases]
+                      {[...monthlyPurchases]
                         .sort((a, b) => {
                           let vA: string | number
                           let vB: string | number
-                          if (sortKey === 'name')        { vA = a.name.toLowerCase(); vB = b.name.toLowerCase() }
-                          else if (sortKey === 'paidBy') { vA = getPersonName(a.paidBy||'').toLowerCase(); vB = getPersonName(b.paidBy||'').toLowerCase() }
+                          if (sortKey === 'name') { vA = a.name.toLowerCase(); vB = b.name.toLowerCase() }
+                          else if (sortKey === 'paidBy') { vA = getPersonName(a.paidBy || '').toLowerCase(); vB = getPersonName(b.paidBy || '').toLowerCase() }
                           else if (sortKey === 'amount') { vA = a.amountPerMonth; vB = b.amountPerMonth }
-                          else                           { vA = a.startMonth; vB = b.startMonth }
+                          else { vA = a.startMonth; vB = b.startMonth }
                           return vA < vB ? (sortDesc ? 1 : -1) : vA > vB ? (sortDesc ? -1 : 1) : 0
                         })
                         .map(p => {
-                          const active = isActiveInMonth(p.startMonth, p.endMonth, selectedMonth)
-                          const installNum   = getCurrentInstallment(p.startMonth, selectedMonth)
+                          const active = true
+                          const installNum = getCurrentInstallment(p.startMonth, selectedMonth)
                           const totalInstall = p.endMonth ? getCurrentInstallment(p.startMonth, p.endMonth) : null
-                          const isSingle     = totalInstall === 1
-                          const hasOverride  = p.overrides?.[selectedMonth] !== undefined
+                          const isSingle = totalInstall === 1
+
+                          const hasOverride = p.overrides?.[selectedMonth] !== undefined
                           const displayValue = p.overrides?.[selectedMonth] ?? p.amountPerMonth
                           const cat = getCategoryById(p.categoryId)
 
@@ -205,6 +210,11 @@ export function CardsPage({ selectedMonth }: Props) {
                     </Muted>
                   )}
                 </TableWrapper>
+                {card.purchases.filter(p => isActiveInMonth(p.startMonth, p.endMonth, selectedMonth)).length === 0 && (
+                  <Muted style={{ display: 'block', textAlign: 'center', padding: '1.5rem' }}>
+                    Nenhuma fatura para {formatMonthLabel(selectedMonth)}.
+                  </Muted>
+                )}
               </ExpandedSection>
             )}
           </Card>

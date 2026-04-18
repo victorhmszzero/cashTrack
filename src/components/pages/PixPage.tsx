@@ -63,7 +63,7 @@ const AccentText = styled.span`
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const PALETTE = ['#8b5cf6','#ec4899','#f97316','#06b6d4','#22c55e','#eab308','#ef4444','#3b82f6']
+const PALETTE = ['#8b5cf6', '#ec4899', '#f97316', '#06b6d4', '#22c55e', '#eab308', '#ef4444', '#3b82f6']
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -129,14 +129,18 @@ export function PixPage({ selectedMonth }: Props) {
 
       {pixPeople.map((person, personIdx) => {
         const color = PALETTE[personIdx % PALETTE.length]
+
+        // 1. Filtre os itens avulsos ativos
         const activeItems = person.items.filter(i => isActiveInMonth(i.startMonth, i.endMonth, selectedMonth))
+
+        // 2. Filtre as compras de cartão vinculadas e ativas
         const linkedPurchases: (Purchase & { cardName: string })[] = []
         cards.forEach(card => card.purchases.forEach(p => {
-          if (p.paidBy === person.id || p.paidBy === person.name)
+          if ((p.paidBy === person.id || p.paidBy === person.name) && isActiveInMonth(p.startMonth, p.endMonth, selectedMonth))
             linkedPurchases.push({ ...p, cardName: card.name })
         }))
-        const activeLinked = linkedPurchases.filter(p => isActiveInMonth(p.startMonth, p.endMonth, selectedMonth))
-        const monthTotal = activeItems.reduce((s, i) => s + i.amountPerMonth, 0) + activeLinked.reduce((s, p) => s + p.amountPerMonth, 0)
+
+        const monthTotal = activeItems.reduce((s, i) => s + i.amountPerMonth, 0) + linkedPurchases.reduce((s, p) => s + p.amountPerMonth, 0)
         const isExp = expanded === person.id
 
         return (
@@ -146,7 +150,7 @@ export function PixPage({ selectedMonth }: Props) {
                 <Avatar $color={color}>{person.name[0]}</Avatar>
                 <div>
                   <p style={{ fontWeight: 700, fontSize: '0.875rem', margin: 0, textAlign: 'left' }}>{person.name}</p>
-                  <Muted $size="xs">{activeItems.length + activeLinked.length} item(s) ativo(s)</Muted>
+                  <Muted $size="xs">{activeItems.length + linkedPurchases.length} item(s) este mês</Muted>
                 </div>
               </Flex>
               <Flex $align="center" $gap={3}>
@@ -158,7 +162,7 @@ export function PixPage({ selectedMonth }: Props) {
             {isExp && (
               <ExpandedSection>
                 <Toolbar>
-                  <Muted $size="xs">{person.items.length} avulso(s) · {linkedPurchases.length} no cartão</Muted>
+                  <Muted $size="xs">{activeItems.length} avulso(s) · {linkedPurchases.length} no cartão</Muted>
                   <Flex $gap={2}>
                     <GhostButton onClick={() => { const n = prompt('Novo nome:', person.name); if (n?.trim()) updatePixPerson(person.id, n.trim()) }}>
                       <Pencil size={13} /> Renomear
