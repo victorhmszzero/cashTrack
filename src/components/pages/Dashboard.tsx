@@ -5,7 +5,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { useStore } from '@/store/useStore'
 import { brl } from '@/utils/calculations'
 import { MoneyValue } from '../shared/MoneyValue'
-import { MonthSummary } from '@/types'
+import type { MonthSummary } from '@/types'
 import { Card, CardBody, Flex, Grid, Muted, SectionTitle, ProgressTrack, ProgressFill, Divider } from '@/styles/ui'
 
 const KpiGrid = styled.div`

@@ -54,6 +54,8 @@ export function SettingsPage() {
   const { settings, updateSettings, resetToInitial, importData } = useStore()
   const [salary, setSalary] = useState(settings.salary.toString())
   const [investPct, setInvestPct] = useState(settings.investPercent.toString())
+    const [startMonth, setStartMonth] = useState(settings.startTrackingMonth || '') 
+
   const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'error'>('idle')
   const [importMsg, setImportMsg] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
@@ -61,10 +63,12 @@ export function SettingsPage() {
 
   const save = () => {
     updateSettings({
-      salary: parseFloat(salary) || 0,
-      investPercent: Math.min(100, Math.max(0, parseFloat(investPct) || 0)),
+      salary: Number.parseFloat(salary) || 0,
+      investPercent: Math.min(100, Math.max(0, Number.parseFloat(investPct) || 0)),
+      startTrackingMonth: startMonth, 
     })
   }
+
 
 const exportJSON = () => {
   const { settings: s, cards, fixedBills, pixPeople } = useStore.getState()
@@ -105,6 +109,7 @@ const exportJSON = () => {
 
   return (
     <Flex $col $gap={5} style={{ maxWidth: '36rem' }}>
+
       <div>
         <PageTitle>Configurações</PageTitle>
         <Muted>Personalize o visual e gerencie seus dados.</Muted>
@@ -173,6 +178,20 @@ const exportJSON = () => {
         <CardBody>
           <SectionTitle style={{ marginBottom: '1.25rem' }}>💰 Financeiro</SectionTitle>
           <Flex $col $gap={4}>
+            
+            {/* NOVO CAMPO: INÍCIO DO HISTÓRICO */}
+            <FormRow>
+              <Label>Mês inicial do histórico</Label>
+              <Input 
+                type="month" 
+                value={startMonth} 
+                onChange={e => setStartMonth(e.target.value)} 
+              />
+              <Muted $size="xs">Exibe registros a partir deste mês. Parcelas anteriores a isso serão ignoradas visualmente.</Muted>
+            </FormRow>
+
+            <Divider />
+
             <FormRow>
               <Label>Salário mensal (R$)</Label>
               <Input type="number" step="100" value={salary} onChange={e => setSalary(e.target.value)} />
@@ -191,7 +210,7 @@ const exportJSON = () => {
                   {investPct}%
                 </span>
               </Flex>
-              <Muted $size="xs">O restante ({100 - parseFloat(investPct || '0')}%) vai para lazer.</Muted>
+              <Muted $size="xs">O restante ({100 - Number.parseFloat(investPct || '0')}%) vai para lazer.</Muted>
             </FormRow>
 
             <PrimaryButton style={{ width: 'fit-content' }} onClick={save}>

@@ -1,7 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useState , useEffect, useRef } from 'react'
+
+import { ChevronLeft, ChevronRight, History } from 'lucide-react'
 import styled from 'styled-components'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { MonthSummary } from '@/types'
+
+import type { MonthSummary } from '@/types'
 
 interface Props {
   months: MonthSummary[]
@@ -56,7 +58,7 @@ const MonthBtn = styled.button<{ $selected: boolean; $negative: boolean }>`
 
   background: ${p =>
     p.$selected ? p.theme.accent
-    : p.$negative ? p.theme.danger + '18'
+    : p.$negative ? `${p.theme.danger}18`
     : p.theme.bg.subtle};
 
   color: ${p =>
@@ -69,31 +71,56 @@ const MonthBtn = styled.button<{ $selected: boolean; $negative: boolean }>`
   &:hover {
     background: ${p =>
       p.$selected ? p.theme.accent
-      : p.$negative ? p.theme.danger + '28'
+      : p.$negative ? `${p.theme.danger}28`
       : p.theme.bg.hover};
     color: ${p => p.$selected ? 'white' : p.theme.text.primary};
   }
 `
 
 export function MonthBar({ months, selected, onSelect }: Props) {
+  const [showPast, setShowPast] = useState(false) // Estado para controlar o histórico
   const refs = useRef<(HTMLButtonElement | null)[]>([])
-  const idx = months.findIndex(m => m.yearMonth === selected)
+  
+  // Pegamos a data atual para saber o que é "passado"
+  const now = new Date()
+  const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
+  // Filtramos os meses: se showPast for falso, removemos os meses anteriores ao atual
+  // mas mantemos o selecionado caso ele seja um mês antigo
+  const visibleMonths = months.filter(m => {
+    if (showPast) return true
+    return m.yearMonth >= currentYM || m.yearMonth === selected
+  })
+
+  const idx = visibleMonths.findIndex(m => m.yearMonth === selected)
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    refs.current[idx]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
-  }, [selected, months, idx])
+    if (idx !== -1) {
+      refs.current[idx]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+    }
+  }, [selected, visibleMonths, idx])
 
   return (
     <Wrapper>
+      {/* Botão de Histórico Sutil */}
+      <ArrowBtn 
+        onClick={() => setShowPast(!showPast)} 
+        title="Mostrar meses anteriores"
+        style={{ color: showPast ? 'var(--accent)' : undefined }}
+      >
+        <History size={16} strokeWidth={showPast ? 3 : 2} />
+      </ArrowBtn>
+
       <ArrowBtn
-        disabled={idx === 0}
-        onClick={() => idx > 0 && onSelect(months[idx - 1].yearMonth)}
+        disabled={idx <= 0}
+        onClick={() => idx > 0 && onSelect(visibleMonths[idx - 1].yearMonth)}
       >
         <ChevronLeft size={17} />
       </ArrowBtn>
 
       <Strip>
-        {months.map((m, i) => (
+        {visibleMonths.map((m, i) => (
           <MonthBtn
             key={m.yearMonth}
             ref={el => (refs.current[i] = el)}
@@ -107,11 +134,12 @@ export function MonthBar({ months, selected, onSelect }: Props) {
       </Strip>
 
       <ArrowBtn
-        disabled={idx === months.length - 1}
-        onClick={() => idx < months.length - 1 && onSelect(months[idx + 1].yearMonth)}
+        disabled={idx === visibleMonths.length - 1}
+        onClick={() => idx < visibleMonths.length - 1 && onSelect(visibleMonths[idx + 1].yearMonth)}
       >
         <ChevronRight size={17} />
       </ArrowBtn>
     </Wrapper>
   )
 }
+

@@ -1,7 +1,7 @@
 // src/utils/calculations.ts
 import { format, addMonths, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { AppState, MonthSummary, Purchase, PixItem } from '../types'
+import type { AppState, MonthSummary, Purchase, PixItem } from '../types'
 
 export function isActiveInMonth(startMonth: string, endMonth: string | null, yearMonth: string): boolean {
   return startMonth <= yearMonth && (endMonth === null || endMonth >= yearMonth)
@@ -25,7 +25,7 @@ function sumActivePurchases(purchases: Purchase[], yearMonth: string): number {
 }
 
 export function formatMonthLabel(yearMonth: string): string {
-  const date = parseISO(yearMonth + '-01')
+  const date = parseISO(`${yearMonth}-01`)
   return format(date, "MMM'/'yy", { locale: ptBR })
     .replace(/^\w/, c => c.toUpperCase())
 }
@@ -38,20 +38,43 @@ export function brl(value: number): string {
 
 export function generateMonths(state: AppState): string[] {
   const today = new Date()
-  const startYM = format(today, 'yyyy-MM')
+  const { settings } = state
+
+  // 1. Definição do início (Prioridade: Configuração > Scanner de Compras > Mês Atual)
+  let startYM = settings.startTrackingMonth || format(today, 'yyyy-MM')
+
+  // Se não houver configuração, tentamos achar a compra mais antiga
+  if (!settings.startTrackingMonth) {
+    for (const card of state.cards) {
+      for (const p of card.purchases) {
+        if (p.startMonth < startYM) startYM = p.startMonth
+      }
+    }
+    for (const person of state.pixPeople) {
+      for (const item of person.items) {
+        if (item.startMonth < startYM) startYM = item.startMonth
+      }
+    }
+  }
+
+  // 2. Definição do fim (Scanner de futuro)
   let lastYM = format(addMonths(today, 12), 'yyyy-MM')
-
-  for (const card of state.cards)
-    for (const p of card.purchases)
+  for (const card of state.cards) {
+    for (const p of card.purchases) {
       if (p.endMonth && p.endMonth > lastYM) lastYM = p.endMonth
-
-  for (const person of state.pixPeople)
-    for (const item of person.items)
+    }
+  }
+  for (const person of state.pixPeople) {
+    for (const item of person.items) {
       if (item.endMonth && item.endMonth > lastYM) lastYM = item.endMonth
+    }
+  }
 
+  // 3. Gerar a lista
   const months: string[] = []
-  let current = parseISO(startYM + '-01')
-  const end = parseISO(lastYM + '-01')
+  let current = parseISO(`${startYM}-01`)
+  const end = parseISO(`${lastYM}-01`)
+  
   while (current <= end) {
     months.push(format(current, 'yyyy-MM'))
     current = addMonths(current, 1)
@@ -137,7 +160,7 @@ export function computeSummaries(state: AppState): MonthSummary[] {
 }
 
 export function getCurrentInstallment(startMonth: string, refMonth: string): number {
-  const start = parseISO(startMonth + '-01')
-  const ref   = parseISO(refMonth + '-01')
+  const start = parseISO(`${startMonth}-01`)
+  const ref   = parseISO(`${refMonth}-01`)
   return (ref.getFullYear() - start.getFullYear()) * 12 + (ref.getMonth() - start.getMonth()) + 1
 }

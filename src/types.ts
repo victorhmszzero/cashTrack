@@ -56,6 +56,8 @@ export interface AppSettings {
   reservePercent: number
   theme: 'light' | 'dark'
   accentColor: string
+    startTrackingMonth: string; // <-- Adicione isso (ex: "2024-03")
+
 }
 
 export interface AppState {
