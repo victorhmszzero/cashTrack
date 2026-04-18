@@ -1,6 +1,7 @@
+// src\components\modals\PixItemModal.tsx
 import { useState } from 'react'
 import { Modal } from '../shared/Modal'
-import { PixItem } from '@/types'
+import type { PixItem } from '@/types'
 import { Flex, FormRow, FormGrid, Label, Input, PrimaryButton, GhostButton } from '@/styles/ui'
 
 type FormData = Omit<PixItem, 'id'>
@@ -48,7 +49,7 @@ export function PixItemModal({ personName, initial, onSave, onClose }: Props) {
         <Input
           type="number" step="0.01" min="0"
           value={form.amountPerMonth || ''}
-          onChange={e => set('amountPerMonth', parseFloat(e.target.value) || 0)}
+          onChange={e => set('amountPerMonth', Number.parseFloat(e.target.value) || 0)}
         />
       </FormRow>
 

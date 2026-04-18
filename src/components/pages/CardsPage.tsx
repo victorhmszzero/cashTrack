@@ -1,4 +1,4 @@
-// src/components/pages/CardsPage.tsx
+// src\components\pages\CardsPage.tsx
 import { useState } from 'react'
 import styled from 'styled-components'
 import { Plus, Pencil, Trash2, CreditCard, ChevronDown, ChevronRight, CalendarDays } from 'lucide-react'
@@ -7,7 +7,7 @@ import { MoneyValue } from '../shared/MoneyValue'
 import { PurchaseModal } from '../modals/PurchaseModal'
 import { Modal } from '../shared/Modal'
 import { isActiveInMonth, getCurrentInstallment, formatMonthLabel } from '@/utils/calculations'
-import { CreditCard as CardType, Purchase } from '@/types'
+import type { CreditCard as CardType, Purchase } from '@/types'
 import {
   Card, Flex, PageTitle, Muted, Badge,
   PrimaryButton, SmallPrimaryButton, GhostButton, DangerButton, IconButton,
@@ -135,7 +135,8 @@ export function CardsPage({ selectedMonth }: Props) {
                     <Tbody>
                       {[...card.purchases]
                         .sort((a, b) => {
-                          let vA: string | number, vB: string | number
+                          let vA: string | number
+                          let vB: string | number
                           if (sortKey === 'name')        { vA = a.name.toLowerCase(); vB = b.name.toLowerCase() }
                           else if (sortKey === 'paidBy') { vA = getPersonName(a.paidBy||'').toLowerCase(); vB = getPersonName(b.paidBy||'').toLowerCase() }
                           else if (sortKey === 'amount') { vA = a.amountPerMonth; vB = b.amountPerMonth }
@@ -229,7 +230,7 @@ export function CardsPage({ selectedMonth }: Props) {
             <Input type="number" min={1} max={31}
               value={cardModal.card ? cardModal.card.dueDay : newCardDay}
               onChange={e => {
-                const v = parseInt(e.target.value)
+                const v = Number.parseInt(e.target.value)
                 cardModal.card ? setCardModal({ card: { ...cardModal.card, dueDay: v } }) : setNewCardDay(v)
               }}
             />
@@ -274,8 +275,8 @@ export function CardsPage({ selectedMonth }: Props) {
               <GhostButton onClick={() => setOverrideModal(null)}>Cancelar</GhostButton>
               <PrimaryButton onClick={() => {
                 const input = document.getElementById('override-input') as HTMLInputElement
-                const val = parseFloat(input.value)
-                if (!isNaN(val)) {
+                const val = Number.parseFloat(input.value)
+                if (!Number.isNaN(val)) {
                   setPurchaseOverride(overrideModal.cardId, overrideModal.purchase.id, selectedMonth,
                     val === overrideModal.purchase.amountPerMonth ? null : val)
                 }

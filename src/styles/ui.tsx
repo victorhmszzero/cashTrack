@@ -1,3 +1,4 @@
+// src\styles\ui.tsx
 /**
  * ui.tsx — Biblioteca de componentes reutilizáveis
  *
@@ -196,7 +197,7 @@ export const IconButton = styled.button<{ $danger?: boolean }>`
   font-family: inherit;
 
   &:hover {
-    background: ${p => p.$danger ? p.theme.danger + '18' : p.theme.bg.hover};
+    background: ${p => p.$danger ? `${p.theme.danger}18` : p.theme.bg.hover};
     color: ${p => p.$danger ? p.theme.danger : p.theme.text.primary};
   }
 `
@@ -351,13 +352,13 @@ export const Tr = styled.tr<{
   cursor: ${p => p.$clickable ? 'pointer' : 'default'};
 
   background: ${p =>
-    p.$selected ? p.theme.accent + '15'
-    : p.$negative ? p.theme.danger + '08'
+    p.$selected ? `${p.theme.accent}15`
+    : p.$negative ? `${p.theme.danger}08`
     : 'transparent'};
 
   &:hover {
     background: ${p =>
-      p.$selected ? p.theme.accent + '20'
+      p.$selected ? `${p.theme.accent}20`
       : p.theme.bg.hover};
   }
 `
@@ -374,7 +375,7 @@ export const Badge = styled.span<{ $color?: string }>`
   letter-spacing: 0.06em;
   padding: 0.2rem 0.5rem;
   border-radius: 6px;
-  background: ${p => p.$color ? p.$color + '18' : p.theme.bg.subtle};
+  background: ${p => p.$color ? `${p.$color}18` : p.theme.bg.subtle};
   color: ${p => p.$color || p.theme.text.muted};
 `
 
@@ -388,9 +389,9 @@ export const Alert = styled.div<{ $variant: 'success' | 'error' | 'info' }>`
   border-radius: ${p => p.theme.radius.md};
   font-size: 0.875rem;
   background: ${p =>
-    p.$variant === 'success' ? p.theme.success + '18'
-    : p.$variant === 'error' ? p.theme.danger + '18'
-    : p.theme.accent + '18'};
+    p.$variant === 'success' ? `${p.theme.success}18`
+    : p.$variant === 'error' ? `${p.theme.danger}18`
+    : `${p.theme.accent}18`};
   color: ${p =>
     p.$variant === 'success' ? p.theme.success
     : p.$variant === 'error' ? p.theme.danger

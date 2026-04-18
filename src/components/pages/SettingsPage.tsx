@@ -1,3 +1,4 @@
+// src\components\pages\SettingsPage.tsx
 import { useState, useRef } from 'react'
 import { Save, RotateCcw, Download, Upload, CheckCircle, AlertCircle } from 'lucide-react'
 import { useStore } from '@/store/useStore'

@@ -1,4 +1,5 @@
-import { useEffect, ReactNode } from 'react'
+// src\components\shared\Modal.tsx
+import { useEffect, type ReactNode } from 'react'
 import styled from 'styled-components'
 import { X } from 'lucide-react'
 import { Overlay, Card, IconButton } from '@/styles/ui'

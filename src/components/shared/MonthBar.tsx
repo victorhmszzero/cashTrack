@@ -1,3 +1,4 @@
+// src\components\shared\MonthBar.tsx
 import { useState , useEffect, useRef } from 'react'
 
 import { ChevronLeft, ChevronRight, History } from 'lucide-react'
@@ -123,7 +124,7 @@ export function MonthBar({ months, selected, onSelect }: Props) {
         {visibleMonths.map((m, i) => (
           <MonthBtn
             key={m.yearMonth}
-            ref={el => (refs.current[i] = el)}
+            ref={el => { refs.current[i] = el; }}
             $selected={m.yearMonth === selected}
             $negative={m.balance < 0}
             onClick={() => onSelect(m.yearMonth)}

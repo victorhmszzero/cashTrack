@@ -1,16 +1,18 @@
-// src/components/modals/PurchaseModal.tsx
-import React, { useState } from 'react'
-import { Modal } from '../shared/Modal'
-import { Purchase } from '@/types'
+// src\components\modals\PurchaseModal.tsx
+import { useState } from 'react'
+
 import { useStore } from '@/store/useStore'
-import { Flex, FormRow, FormGrid, Label, Input, Select, PrimaryButton, GhostButton, Alert } from '@/styles/ui'
+import * as Ui from '@/styles/ui'
+import type { Purchase } from '@/types'
+
+import { Modal } from '../shared/Modal'
 
 type FormData = Omit<Purchase, 'id'>
 
 interface Props {
   cardId: string
   initial?: Purchase
-  selectedMonth: string   // mês selecionado na tela — vira o default
+  selectedMonth: string
   onSave: (data: FormData) => void
   onClose: () => void
 }
@@ -46,56 +48,56 @@ export function PurchaseModal({ initial, selectedMonth, onSave, onClose }: Props
 
   return (
     <Modal title={initial ? 'Editar compra' : 'Nova compra'} onClose={onClose} size="md">
-      <FormRow>
-        <Label>Nome da compra</Label>
-        <Input
+      <Ui.FormRow>
+        <Ui.Label>Nome da compra</Ui.Label>
+        <Ui.Input
           value={form.name}
           onChange={e => set('name', e.target.value)}
           placeholder="Ex: Tênis Casas Bahia"
           autoFocus
         />
-      </FormRow>
+      </Ui.FormRow>
 
-      <FormRow>
-        <Label>Valor por mês (R$)</Label>
-        <Input
+      <Ui.FormRow>
+        <Ui.Label>Valor por mês (R$)</Ui.Label>
+        <Ui.Input
           type="number" step="0.01" min="0"
           value={form.amountPerMonth || ''}
-          onChange={e => set('amountPerMonth', parseFloat(e.target.value) || 0)}
+          onChange={e => set('amountPerMonth', Number.parseFloat(e.target.value) || 0)}
           placeholder="0,00"
         />
-      </FormRow>
+      </Ui.FormRow>
         
-        <FormRow>
-          <Label>Observações (Opcional)</Label>
-          <Input
+        <Ui.FormRow>
+          <Ui.Label>Observações (Opcional)</Ui.Label>
+          <Ui.Input
             value={form.notes || ''}
             onChange={e => set('notes', e.target.value)}
             placeholder="Ex: Loja X"
           />
-        </FormRow>
+        </Ui.FormRow>
 
-      <FormGrid>
-        <FormRow>
-          <Label>Mês início</Label>
-          <Input type="month" value={form.startMonth} onChange={e => set('startMonth', e.target.value)} />
-        </FormRow>
-        <FormRow>
-          <Label>Mês fim</Label>
-          <Input
+      <Ui.FormGrid>
+        <Ui.FormRow>
+          <Ui.Label>Mês início</Ui.Label>
+          <Ui.Input type="month" value={form.startMonth} onChange={e => set('startMonth', e.target.value)} />
+        </Ui.FormRow>
+        <Ui.FormRow>
+          <Ui.Label>Mês fim</Ui.Label>
+          <Ui.Input
             type="month"
             value={form.endMonth || ''}
             disabled={isRecurrent}
             onChange={e => set('endMonth', e.target.value || null)}
           />
-        </FormRow>
-      </FormGrid>
+        </Ui.FormRow>
+      </Ui.FormGrid>
 
       {/* Quando início = fim, avisa que é compra única */}
       {isSingleMonth && (
-        <Alert $variant="info" style={{ fontSize: '0.75rem' }}>
+        <Ui.Alert $variant="info" style={{ fontSize: '0.75rem' }}>
           💡 Compra única em {form.startMonth} — aparece só nessa fatura.
-        </Alert>
+        </Ui.Alert>
       )}
 
       <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
@@ -110,41 +112,41 @@ export function PurchaseModal({ initial, selectedMonth, onSave, onClose }: Props
         <span style={{ fontSize: '0.875rem' }}>Recorrente (sem prazo de fim)</span>
       </label>
 
-      <FormGrid>
-        <FormRow>
-          <Label>Categoria</Label>
-          <Select value={form.categoryId || ''} onChange={e => set('categoryId', e.target.value)}>
+      <Ui.FormGrid>
+        <Ui.FormRow>
+          <Ui.Label>Categoria</Ui.Label>
+          <Ui.Select value={form.categoryId || ''} onChange={e => set('categoryId', e.target.value)}>
             <option value="">Sem categoria</option>
             {(categories ?? []).map(c => (
               <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>
             ))}
-          </Select>
-        </FormRow>
-        <FormRow>
-          <Label>Quem vai pagar? (PIX)</Label>
-          <Select value={form.paidBy || ''} onChange={e => set('paidBy', e.target.value)}>
+          </Ui.Select>
+        </Ui.FormRow>
+        <Ui.FormRow>
+          <Ui.Label>Quem vai pagar? (PIX)</Ui.Label>
+          <Ui.Select value={form.paidBy || ''} onChange={e => set('paidBy', e.target.value)}>
             <option value="">Ninguém (meu gasto)</option>
             {pixPeople.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </Select>
-        </FormRow>
-      </FormGrid>
+          </Ui.Select>
+        </Ui.FormRow>
+      </Ui.FormGrid>
 
       {/* <FormGrid> */}
-        <FormRow>
-          <Label>Data da compra (opcional)</Label>
-          <Input
+        <Ui.FormRow>
+          <Ui.Label>Data da compra (opcional)</Ui.Label>
+          <Ui.Input
             type="date"
             value={form.purchaseDate || ''}
             onChange={e => set('purchaseDate', e.target.value)}
           />
-        </FormRow>
+        </Ui.FormRow>
 
       {/* </FormGrid> */}
 
-      <Flex $justify="flex-end" $gap={2}>
-        <GhostButton onClick={onClose}>Cancelar</GhostButton>
-        <PrimaryButton onClick={submit} disabled={!isValid}>Salvar</PrimaryButton>
-      </Flex>
+      <Ui.Flex $justify="flex-end" $gap={2}>
+        <Ui.GhostButton onClick={onClose}>Cancelar</Ui.GhostButton>
+        <Ui.PrimaryButton onClick={submit} disabled={!isValid}>Salvar</Ui.PrimaryButton>
+      </Ui.Flex>
     </Modal>
   )
 }

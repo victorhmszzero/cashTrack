@@ -1,3 +1,4 @@
+// src\components\shared\MoneyValue.tsx
 import { MonoText } from '@/styles/ui'
 import { brl } from '@/utils/calculations'
 

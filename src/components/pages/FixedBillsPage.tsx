@@ -1,3 +1,4 @@
+// src\components\pages\FixedBillsPage.tsx
 import { useState } from 'react'
 import styled from 'styled-components'
 import { Plus, Pencil, ToggleLeft, ToggleRight, CalendarDays } from 'lucide-react'
@@ -72,7 +73,7 @@ export function FixedBillsPage({ selectedMonth }: Props) {
                     <Td>
                       <Flex $align="center" $gap={2}>
                         {getCat(bill.categoryId) && (
-                          <span style={{ fontSize: '0.875rem' }}>{getCat(bill.categoryId)!.emoji}</span>
+                          <span style={{ fontSize: '0.875rem' }}>{getCat(bill.categoryId)?.emoji}</span>
                         )}
                         <span style={{ fontWeight: 500 }}>{bill.name}</span>
                       </Flex>
@@ -126,7 +127,7 @@ export function FixedBillsPage({ selectedMonth }: Props) {
           <form onSubmit={e => {
             e.preventDefault()
             const fd = new FormData(e.currentTarget)
-            const amt  = parseFloat(fd.get('amount') as string) || 0
+            const amt  = Number.parseFloat(fd.get('amount') as string) || 0
             const name = fd.get('name') as string
             if (modal.isOverride) {
               setFixedBillOverride(modal.bill.id, selectedMonth, amt === modal.bill.amount ? null : amt)

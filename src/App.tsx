@@ -1,4 +1,4 @@
-// src/App.tsx
+// src\App.tsx
 import { useState, useMemo, useEffect } from 'react'
 
 import { LayoutDashboard, CreditCard, Smartphone, Receipt, Settings, Table2, Sun, Moon, Tag } from 'lucide-react'

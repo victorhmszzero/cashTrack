@@ -1,4 +1,4 @@
-// src/components/pages/CategoryPage.tsx
+// src\components\pages\CategoryPage.tsx
 import { useState } from 'react'
 import styled from 'styled-components'
 import { Plus, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react'
@@ -181,7 +181,7 @@ export function CategoryPage({ selectedMonth }: Props) {
             </CategoryHeader>
 
             {isExp && (
-              <div style={{ borderTop: `1px solid` }}>
+              <div style={{ borderTop: "1px solid" }}>
                 <Flex $align="center" $justify="space-between" style={{ padding: '0.625rem 1rem', background: 'rgba(0,0,0,0.02)' }}>
                   <Muted $size="xs">{items.length} item(s)</Muted>
                   <Flex $gap={2}>
@@ -253,7 +253,7 @@ export function CategoryPage({ selectedMonth }: Props) {
             </CategoryHeader>
 
             {isExp && (
-              <div style={{ borderTop: `1px solid` }}>
+              <div style={{ borderTop: "1px solid" }}>
                 <TableWrapper>
                   <Table>
                     <Thead>

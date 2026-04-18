@@ -1,3 +1,4 @@
+// src\components\pages\PixPage.tsx
 import { useState } from 'react'
 import styled from 'styled-components'
 import { Plus, Pencil, Trash2, ChevronDown, ChevronRight, CreditCard } from 'lucide-react'
@@ -5,7 +6,7 @@ import { useStore } from '@/store/useStore'
 import { MoneyValue } from '../shared/MoneyValue'
 import { PixItemModal } from '../modals/PixItemModal'
 import { isActiveInMonth } from '@/utils/calculations'
-import { PixItem, Purchase } from '@/types'
+import type { PixItem, Purchase } from '@/types'
 import {
   Card, Flex, PageTitle, Muted, Badge,
   PrimaryButton, SmallPrimaryButton, GhostButton, DangerButton, IconButton,
@@ -135,8 +136,7 @@ export function PixPage({ selectedMonth }: Props) {
             linkedPurchases.push({ ...p, cardName: card.name })
         }))
         const activeLinked = linkedPurchases.filter(p => isActiveInMonth(p.startMonth, p.endMonth, selectedMonth))
-        const monthTotal = activeItems.reduce((s, i) => s + i.amountPerMonth, 0)
-                         + activeLinked.reduce((s, p) => s + p.amountPerMonth, 0)
+        const monthTotal = activeItems.reduce((s, i) => s + i.amountPerMonth, 0) + activeLinked.reduce((s, p) => s + p.amountPerMonth, 0)
         const isExp = expanded === person.id
 
         return (

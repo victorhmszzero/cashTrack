@@ -1,5 +1,6 @@
+// src\components\pages\OverviewTable.tsx
 import styled from 'styled-components'
-import { MonthSummary } from '@/types'
+import type { MonthSummary } from '@/types'
 import { MoneyValue } from '../shared/MoneyValue'
 import { useStore } from '@/store/useStore'
 import { Card, PageTitle, Flex, TableWrapper, Table, Thead, Tbody, Th, Td, Tr } from '@/styles/ui'
@@ -15,7 +16,7 @@ const StickyTd = styled(Td)<{ $selected: boolean }>`
   position: sticky;
   left: 0;
   z-index: 5;
-  background: ${p => p.$selected ? p.theme.accent + '20' : p.theme.bg.card};
+  background: ${p => p.$selected ? `${p.theme.accent}20` : p.theme.bg.card};
   font-weight: 600;
   color: ${p => p.$selected ? p.theme.accent : p.theme.text.primary};
 `

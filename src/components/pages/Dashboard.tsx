@@ -1,4 +1,4 @@
-// src/components/pages/Dashboard.tsx
+// src\components\pages\Dashboard.tsx
 import styled, { useTheme } from 'styled-components'
 import { TrendingDown, Wallet, ArrowDownCircle, ArrowUpCircle } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts'
